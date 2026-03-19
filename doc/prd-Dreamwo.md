@@ -1,14 +1,14 @@
-# Product Requirements Document - Dream-WO
+# Product Requirements Document - Dream Syariah Wedding 
 
 ## Executive Summary
 
-Dream-WO dirancang sebagai **Web App** internal yang merevolusi operasional Wedding Organizer (WO) melalui manajemen siklus acara yang lengkap dan otomatisasi dokumen ujung-ke-ujung. Fokus utamanya adalah memigrasikan proses administrasi manual (Excel/Word/Kertas) terkait data klien, paket vendor, penjadwalan, hingga daftar tamu ke dalam satu sistem terpusat yang berfungsi sebagai *Single Source of Truth*.
+Dream-Syariah-Wedding dirancang sebagai **Web App** internal yang merevolusi operasional Wedding Organizer (WO) melalui manajemen siklus acara yang lengkap dan otomatisasi dokumen ujung-ke-ujung. Fokus utamanya adalah memigrasikan proses administrasi manual (Excel/Word/Kertas) terkait data klien, paket vendor, penjadwalan, hingga daftar tamu ke dalam satu sistem terpusat yang berfungsi sebagai *Single Source of Truth*.
 
 Target pengguna utama adalah **Admin WO** yang membutuhkan efisiensi tinggi dalam mengelola kemitraan vendor, validasi ketersediaan jadwal, manajemen tamu, dan dokumen penagihan. Aplikasi ini mengeliminasi redundansi data dan risiko kesalahan input, memungkinkan transisi instan dari fase perencanaan ke eksekusi operasional yang presisi.
 
 ### What Makes This Special
 
-Keunggulan utama Dream-WO terletak pada integrasi hulu ke hilir yang mencakup manajemen vendor, sistem booking otomatis, dan mesin dokumen **"One-Click"**. Sistem ini menggunakan **Dynamic Client Needs Form** yang terhubung dengan katalog paket vendor untuk menghasilkan dua dokumen kritis secara instan: **Professional Invoice** untuk klien dan **Technical Specs Checklist** untuk tim lapangan, sembari memastikan tidak ada jadwal yang bentrok.
+Keunggulan utama Dream-Syariah-Wedding terletak pada integrasi hulu ke hilir yang mencakup manajemen vendor, sistem booking otomatis, dan mesin dokumen **"One-Click"**. Sistem ini menggunakan **Dynamic Client Needs Form** yang terhubung dengan katalog paket vendor untuk menghasilkan dua dokumen kritis secara instan: **Professional Invoice** untuk klien dan **Technical Specs Checklist** untuk tim lapangan, sembari memastikan tidak ada jadwal yang bentrok.
 
 Insight intinya adalah dengan mengintegrasikan manajemen tamu dan undangan digital ke dalam alur kerja administrasi, WO tidak hanya meningkatkan produktivitas internal tetapi juga meningkatkan daya saing melalui layanan modern yang lebih cepat dan bebas kesalahan (*zero conflict booking*).
 
@@ -18,7 +18,7 @@ Insight intinya adalah dengan mengintegrasikan manajemen tamu dan undangan digit
 
 - **Solusi Generik (CRM/ERP)**: Terlalu kompleks, kaku, dan tidak dirancang untuk alur kerja spesifik WO. Memerlukan pelatihan intensif dan biaya lisensi tinggi.
 - **Tools Manual (Excel/Word)**: Bebas, namun menghasilkan redundansi data, tidak ada single source of truth, dan rawan kesalahan copy-paste.
-- **Dream-WO**: Satu-satunya solusi yang secara langsung menjembatani gap antara konsultasi klien dan dokumen operasional melalui otomatisasi hulu-ke-hilir untuk segmen WO menengah ke bawah.
+- **Dream-Syariah-Wedding**: Satu-satunya solusi yang secara langsung menjembatani gap antara konsultasi klien dan dokumen operasional melalui otomatisasi hulu-ke-hilir untuk segmen WO menengah ke bawah.
 
 ### Innovation Levers
 
@@ -79,7 +79,7 @@ Fokus pada penyediaan kapabilitas dasar yang memberikan nilai instan bagi tim WO
 
 ### 1. Sarah - Sang Dirigen (Admin WO)
 **Konteks**: Sarah sedang menangani 5 klien pernikahan sekaligus minggu depan. Dia baru saja selesai konsultasi dengan seorang klien baru.
-- **Opening**: Sarah membuka dashboard Dream-WO, login dengan aman, dan langsung menuju ke menu "Kalender" untuk memastikan tanggal yang diminta klien tidak bentrok (*zero conflict confirmation*).
+- **Opening**: Sarah membuka dashboard Dream-Syariah-Wedding, login dengan aman, dan langsung menuju ke menu "Kalender" untuk memastikan tanggal yang diminta klien tidak bentrok (*zero conflict confirmation*).
 - **Action**: Setelah konfirmasi ketersediaan, dia mengisi formulir dinamis: detail pengantin, lokasi, dan memilih item dari katalog paket vendor (Catering, Dekorasi, Dokumentasi) yang sudah tersimpan di sistem.
 - **Finalization**: Sarah menekan "Save". Dalam hitungan detik, sistem memicu pembuatan nomor invoice unik, menyimpan data ke database, dan menampilkan tombol "Download Dokumen" serta "Generate Digital Invitation".
 - **Resolution**: Sarah mendownload PDF Invoice dan Spesifikasi Teknis, serta mengirimkan link undangan digital ke klien. Sarah merasa rileks karena semua aspek (jadwal, vendor, dokumen) sudah tertangani dalam satu alur kerja yang singkat.
@@ -129,7 +129,7 @@ Berdasarkan narasi di atas, kita membutuhkan kapabilitas berikut:
 ## Web App Specific Requirements
 
 ### Project-Type Overview
-Dream-WO akan diimplementasikan sebagai **Multi Page Application (MPA)**. Pendekatan ini dipilih untuk menjaga kesederhanaan arsitektur dan keandalan navigasi antar-halaman yang berbeda (Dashboard, Form Input, Preview Dokumen) tanpa beban kompleksitas manajemen *state* di sisi klien yang berlebihan.
+Dream-Syariah-Wedding akan diimplementasikan sebagai **Multi Page Application (MPA)**. Pendekatan ini dipilih untuk menjaga kesederhanaan arsitektur dan keandalan navigasi antar-halaman yang berbeda (Dashboard, Form Input, Preview Dokumen) tanpa beban kompleksitas manajemen *state* di sisi klien yang berlebihan.
 
 ### Technical Architecture Considerations
 - **Architecture Style**: Server-side rendering (MPA) untuk memastikan stabilitas akses pada berbagai perangkat internal.

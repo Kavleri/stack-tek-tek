@@ -1,4 +1,4 @@
-# Product Brief: Dream-WO
+# Product Brief: Dream Syariah Wedding
 
 ## Executive Summary
 

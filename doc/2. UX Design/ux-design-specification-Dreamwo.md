@@ -1,4 +1,4 @@
-# UX Design Specification - Dream Syariah Wedding Organizer
+# UX Design Specification - Dream Syariah Wedding
 
 ---
 
@@ -6,7 +6,7 @@
 
 ### Project Vision
 
-Visi proyek **Dream Syariah Wedding Organizer (Dream-WO)** adalah mentransformasi operasional Wedding Organizer yang berlandaskan nilai-nilai syariah melalui otomatisasi dokumen yang presisi dan manajemen siklus acara yang komprehensif. Masalah utama yang diselesaikan adalah kompleksitas administrasi manual yang rawan kesalahan, khususnya dalam penjadwalan (*booking conflict*) dan koordinasi item vendor. Sistem ini berfungsi sebagai *Single Source of Truth* yang mengalokasikan tenaga admin dari "penata layout" menjadi "validator data" yang berwibawa.
+Visi proyek **Dream Syariah Wedding Organizer (Dream-Syariah-Wedding)** adalah mentransformasi operasional Wedding Organizer yang berlandaskan nilai-nilai syariah melalui otomatisasi dokumen yang presisi dan manajemen siklus acara yang komprehensif. Masalah utama yang diselesaikan adalah kompleksitas administrasi manual yang rawan kesalahan, khususnya dalam penjadwalan (*booking conflict*) dan koordinasi item vendor. Sistem ini berfungsi sebagai *Single Source of Truth* yang mengalokasikan tenaga admin dari "penata layout" menjadi "validator data" yang berwibawa.
 
 ### Target Users
 
@@ -24,7 +24,7 @@ Visi proyek **Dream Syariah Wedding Organizer (Dream-WO)** adalah mentransformas
 
 ### Defining Experience
 
-Pengalaman inti Dream-WO berpusat pada **"Syariah Integrity & Instant Harmony"**. Admin Sarah tidak hanya mengisi formulir, tetapi ia sedang menyusun ekosistem acara yang teratur dan halal. Interaksi kritikal adalah **Real-time Conflict Validation**—momen ketika sistem langsung memberikan umpan balik tentang ketersediaan vendor dan jadwal saat Sarah sedang melakukan konsultasi.
+Pengalaman inti Dream-Syariah-Wedding berpusat pada **"Syariah Integrity & Instant Harmony"**. Admin Sarah tidak hanya mengisi formulir, tetapi ia sedang menyusun ekosistem acara yang teratur dan halal. Interaksi kritikal adalah **Real-time Conflict Validation**—momen ketika sistem langsung memberikan umpan balik tentang ketersediaan vendor dan jadwal saat Sarah sedang melakukan konsultasi.
 
 ### Platform Strategy
 
@@ -64,7 +64,7 @@ Tujuan emosional utama adalah memberikan rasa **Ketenangan (Serenity)** dan **Ke
 
 ### Inspiring Products Analysis: Notion & Luxury Concierge
 
-Dream-WO menggabungkan efisiensi **Notion** dengan eksklusivitas **Luxury Concierge Services**.
+Dream-Syariah-Wedding menggabungkan efisiensi **Notion** dengan eksklusivitas **Luxury Concierge Services**.
 
 - **Notion (Organization)**: Menggunakan sistem blok untuk mengelompokkan detail acara (Catering, Dekor, Dokumentasi) agar Sarah dapat mengelola data kompleks tanpa merasa kewalahan.
 - **Luxury Concierge (Professionalism)**: Pola interaksi yang proaktif. Sistem tidak hanya menunggu input, tetapi menyarankan langkah selanjutnya (misal: "Jadwal tersedia, buat undangan digital?").
