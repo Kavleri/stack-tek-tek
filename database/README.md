@@ -1,10 +1,15 @@
-# Database Module
+# 🗄️ Database Module
 
-Folder ini didedikasikan sepenuhnya untuk mengelola segala keperluan arsitektur database, skema (schema), migrasi, dan *seeding* data awal. 
+> [!IMPORTANT]
+> **Pemberitahuan Arsitektur:**
+> Folder database ini sengaja dipisah (tidak digabung ke backend) karena proyek ini direncanakan akan **menggunakan Supabase (PostgreSQL)** sebagai *Single Source of Truth* secara terpusat. 
 
-Karena *Dream Syariah Wedding* menggunakan **PostgreSQL (via Supabase)** sebagai *Single Source of Truth*, di sinilah kita nantinya meletakkan:
-- Script `schema.sql` untuk deklarasi struktur tabel secara raw.
-- Script *Seed* (Data contoh/palsu untuk testing).
-- `docker-compose.yml` (Jika sewaktu-waktu kita ingin *testing* database lokal tanpa internet).
+Segala bentuk rancangan fisik tabel (DDL), script migrasi, skema ORM, dan *seed* data awal, ke depannya akan diletakkan secara terorganisir di dalam folder ini.
 
-Dengan folder ini *terpisah* dari backend, kita bisa mengelola versi tabel secara lebih rapi tanpa mengotori kode API!
+---
+
+### Menunggu Persetujuan Tim ⚠️
+
+Saat ini, file SQL awal di dalam folder ini **masih dikosongkan**. Penambahan rancangan arsitektur, kolom, dan relasi antar-tabel baru akan diikutsertakan setelah **mendapat persetujuan final dari diskusi tim FullStack**.
+
+Mohon tidak melakukan *push* rancangan struktur tabel utama sebelum kesepakatan tim tercapai.
