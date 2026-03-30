@@ -1,15 +1,7 @@
-# 🗄️ Database Module
+# 🗄️ Database Stuff
 
-> [!IMPORTANT]
-> **Pemberitahuan Arsitektur:**
-> Folder database ini sengaja dipisah (tidak digabung ke backend) karena proyek ini direncanakan akan **menggunakan Supabase (PostgreSQL)** sebagai *Single Source of Truth* secara terpusat. 
+Folder ini khusus buat nyimpen file-file database kita ya guys.
 
-Segala bentuk rancangan fisik tabel (DDL), script migrasi, skema ORM, dan *seed* data awal, ke depannya akan diletakkan secara terorganisir di dalam folder ini.
+Rencananya sih kita mau pakai **Supabase (Postgres)** buat nyimpen data aslinya nanti. Sementara ini, backend cuma nembak data **dummy (lokalan)** dulu aja sampe ntar ketahuan bentuk tabel aslinya kaya gimana.
 
----
-
-### Menunggu Persetujuan Tim ⚠️
-
-Saat ini, file SQL awal di dalam folder ini **masih dikosongkan**. Penambahan rancangan arsitektur, kolom, dan relasi antar-tabel baru akan diikutsertakan setelah **mendapat persetujuan final dari diskusi tim FullStack**.
-
-Mohon tidak melakukan *push* rancangan struktur tabel utama sebelum kesepakatan tim tercapai.
+🚨 **Penting buat tim:** Tolong jangan asal masukin kodingan / `CREATE TABLE` ke sini dulu sebelum kita diskusiin model struktur datanya (entitas klien, vendor, dll). Biar nggak kerja dua kali. Ntar kalo udah fix, baru kita taro scriptnya di `schema.sql`.
