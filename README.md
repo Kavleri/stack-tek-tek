@@ -1,4 +1,6 @@
-# stack-tek-tek
+# Wedding Syari'ah Organizer
+
+## stack-tek-tek
 Repo Khusus untuk grub matkul FullStack semester 4
 
 ## Deskripsi
