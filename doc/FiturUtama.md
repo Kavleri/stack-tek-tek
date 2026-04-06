@@ -1,29 +1,73 @@
-# Fitur Utama System Management WO
+# Rencana Pengembangan Sistem Manajemen Wedding Organizer (MVP)
 
-1. **Sistem Manajemen Paket & Vendor**
-Ini buat kelola paket wedding-nya.
-    - **Backend**: CRUD Paket (Catering, Dekorasi, Dokumentasi).
-    - **Frontend**: Katalog paket yang rapi pakai React.
-    - **Role**: Cocok buat yang suka mainin logika database.
+Dokumen ini berisi spesifikasi fitur final untuk platform internal pengelolaan agensi pernikahan. Sistem ini dirancang khusus untuk penggunaan oleh Admin Administrasi guna mengelola paket internal, jadwal, dan distribusi informasi ke Tim Lapangan.
 
-2. **Autentikasi & Profile Management**
-Sesuai syarat dosen tentang keamanan (OWASP).
-    - **Backend**: Login/Register pakai JWT (JSON Web Token).
-    - **Frontend**: Halaman profile user dan proteksi private route.
-    - **Fitur**: Pencegahan SQL Injection di input form.
+1. ### Modul Profil \& Manajemen Akun (Auth)
 
-3. **Booking & Penjadwalan**
-Biar nggak ada jadwal yang bentrok antar klien.
-    - **Backend**: Validasi tanggal booking (biar nggak double booking).
-    - **Frontend**: Kalender interaktif atau form pemesanan yang user-friendly.
-    - **Fitur**: Notifikasi otomatis tentang jadwal booking.
+Fokus pada keamanan internal dan pembatasan akses.
 
-4. **Sistem Pembayaran & Invoice**
-Untuk ngelacak pembayaran klien.
-    - **Backend**: Tracking status bayar (DP, Lunas) dan generate nomor invoice.
-    - **Frontend**: Dashboard buat klien liat sisa tagihan mereka.
+* Login Admin: Akses masuk khusus staf administrasi.
+* Manajemen Akun: Tambah, edit, dan hapus akun admin (Owner/Staf).
+* Security Policy: \* Penambahan akun atau reset password hanya bisa dilakukan oleh akun admin yang sedang login.
+* Tidak ada registrasi publik (sistem tertutup).
 
-5. **Guest Management & Digital Invitation**
-Untuk ngelola tamu undangan dan buat undangan digital.
-    - **Backend**: Kelola daftar tamu klien.
-    - **Frontend**: Fitur buat generate link undangan digital sederhana.
+2. ### Modul Manajemen Paket Wedding (Inventory)
+
+Mengelola katalog layanan yang disediakan sepenuhnya oleh agensi (Internal).
+
+* Katalog Paket (CRUD): Kelola nama paket (e.g., Paket Bronze, Silver, Gold).
+* Detail Item Paket: Deskripsi statis mengenai layanan yang didapat (Menu Katering, Dekorasi, Dokumentasi).
+* Frontend Katalog: Tampilan katalog yang bersih dan rapi untuk referensi admin saat konsultasi dengan klien.
+
+3. ### Modul Manajemen Event \& Penjadwalan (Core)
+
+Fitur utama untuk menghindari kesalahan jadwal (double booking).
+
+* Form Pemesanan Acara:
+
+  * Input data klien (Nama, HP, Alamat).
+  * Pilih Paket (Dropdown dari Modul Paket).
+  * Input Tanggal \& Lokasi (Link Google Maps).
+* Validasi Tanggal Otomatis: Sistem akan menolak input jika tanggal tersebut sudah terisi oleh event lain yang berstatus "Confirmed".
+* Kalender Interaktif: Tampilan visual kalender bulanan yang menandai tanggal-tanggal yang sudah ter-booking.
+
+4. ### Modul Pembayaran \& Invoicing
+
+Pelacakan finansial sederhana untuk setiap pesanan.
+
+* Tracking Status Bayar: Input manual status pembayaran (Booking Fee, DP, Termin 1, Lunas).
+* Automatic Invoice Number: Generate nomor invoice unik setiap kali pesanan dibuat (Format: INV/YYYYMMDD/XXXX).
+* Daftar Piutang: Filter khusus untuk melihat pesanan mana saja yang belum mencapai status "Lunas".
+
+5. ### Modul Guest Management (Client Service)
+
+Layanan tambahan untuk meningkatkan nilai jual agensi ke klien.
+
+* Buku Tamu Digital: CRUD daftar tamu untuk masing-masing event/klien.
+* Digital Invitation Link: Generator link sederhana untuk undangan digital yang bisa dibagikan klien ke tamu mereka via WhatsApp.
+
+6. ### Modul Distribusi Informasi (Admin ke Lapangan)
+
+Mekanisme serah terima data operasional agar tim lapangan tahu apa yang harus dikerjakan.
+
+* Export Work Order (PDF): Tombol sekali klik untuk menghasilkan file PDF berisi ringkasan acara:
+
+  * Nama Klien \& Kontak.
+  * Lokasi \& Waktu (Akad/Resepsi).
+  * Checklist Detail Paket (Apa saja yang harus disiapkan tim dekorasi, katering, dll).
+* Mobile-Friendly Summary Page: Halaman khusus yang dioptimasi untuk layar HP, agar tim lapangan bisa login dan melihat daftar checklist persiapan secara real-time tanpa perlu membuka file PDF.
+
+#### Alur Kerja Sistem (Workflow)
+
+1. Pemesanan: Admin mengisi form pesanan berdasarkan konsultasi klien.
+2. Validasi: Sistem memastikan tanggal tersedia.
+
+3. Pembayaran: Admin mencatat pembayaran DP; status event berubah menjadi "Confirmed".
+
+4. Penugasan: Admin men-generate Work Order (PDF) atau membagikan Link Detail kepada Pengurus Lapangan.
+
+5. Eksekusi: Tim lapangan bekerja berdasarkan checklist paket yang tertera di dokumen/halaman summary tersebut.
+
+Catatan Teknis: \* Aplikasi harus fully responsive (nyaman dibuka di laptop admin maupun HP tim lapangan).
+
+* Penyimpanan data menggunakan database relasional untuk menjaga integritas jadwal (mencegah duplikasi data tanggal).
