@@ -5,15 +5,13 @@
 USE wedding_organizer;
 
 -- 1. DATA ADMIN
--- Menambahkan satu akun owner dan satu akun admin operasional.
--- Password menggunakan hash contoh (bcrypt).
+-- Menambahkan satu akun owner dan dua akun admin operasional.
 INSERT INTO admins (username, password, full_name, role) VALUES 
 ('owner_utama', 'password', 'Budi Santoso', 'owner'),
 ('admin_event1', 'password', 'Siti Aminah', 'admin1'),
 ('admin_event2', 'password', 'Rina Wijaya', 'admin2');
 
 -- 2. DATA PAKET WEDDING
--- Katalog paket tetap milik agensi tanpa melibatkan vendor luar.
 INSERT INTO wedding_packages (package_name, price, description) VALUES 
 ('Paket Silver (Econ)', 25000000.00, 'Katering 300 porsi, Dekorasi pelaminan standar, MUA & Attire, Dokumentasi 1 hari.'),
 ('Paket Gold (Standard)', 50000000.00, 'Katering 600 porsi, Dekorasi bunga segar, MUA Premium, Dokumentasi & Video Cinematic.'),
