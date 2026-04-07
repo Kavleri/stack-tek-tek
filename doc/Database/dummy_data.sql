@@ -8,8 +8,8 @@ USE wedding_organizer;
 -- Menambahkan satu akun owner dan dua akun admin operasional.
 INSERT INTO admins (username, password, full_name, role) VALUES 
 ('owner_utama', 'password', 'Budi Santoso', 'owner'),
-('admin_event1', 'password', 'Siti Aminah', 'admin1'),
-('admin_event2', 'password', 'Rina Wijaya', 'admin2');
+('admin_event1', 'password', 'Siti Aminah', 'admin'),
+('admin_event2', 'password', 'Rina Wijaya', 'admin');
 
 -- 2. DATA PAKET WEDDING
 INSERT INTO wedding_packages (package_name, price, description) VALUES 
