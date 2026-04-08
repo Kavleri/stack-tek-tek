@@ -2,16 +2,16 @@
 
 Dokumen ini berisi spesifikasi fitur final untuk platform internal pengelolaan agensi pernikahan. Sistem ini dirancang khusus untuk penggunaan oleh Admin Administrasi guna mengelola paket internal, jadwal, dan distribusi informasi ke Tim Lapangan.
 
-1. ### Modul Profil \& Manajemen Akun (Auth)
+### 1. Modul Profil & Manajemen Akun admin (Auth)
 
 Fokus pada keamanan internal dan pembatasan akses.
 
 * Login Admin: Akses masuk khusus staf administrasi.
 * Manajemen Akun: Tambah, edit, dan hapus akun admin (Owner/Staf).
-* Security Policy: \* Penambahan akun atau reset password hanya bisa dilakukan oleh akun admin yang sedang login.
+* Security Policy: Penambahan akun atau reset password hanya bisa dilakukan oleh akun admin yang sedang login.
 * Tidak ada registrasi publik (sistem tertutup).
 
-2. ### Modul Manajemen Paket Wedding (Inventory)
+### 2. Modul Manajemen Paket Wedding (Inventory)
 
 Mengelola katalog layanan yang disediakan sepenuhnya oleh agensi (Internal).
 
@@ -19,7 +19,7 @@ Mengelola katalog layanan yang disediakan sepenuhnya oleh agensi (Internal).
 * Detail Item Paket: Deskripsi statis mengenai layanan yang didapat (Menu Katering, Dekorasi, Dokumentasi).
 * Frontend Katalog: Tampilan katalog yang bersih dan rapi untuk referensi admin saat konsultasi dengan klien.
 
-3. ### Modul Manajemen Event \& Penjadwalan (Core)
+### 3. Modul Manajemen Event & Penjadwalan (Core)
 
 Fitur utama untuk menghindari kesalahan jadwal (double booking).
 
@@ -31,7 +31,7 @@ Fitur utama untuk menghindari kesalahan jadwal (double booking).
 * Validasi Tanggal Otomatis: Sistem akan menolak input jika tanggal tersebut sudah terisi oleh event lain yang berstatus "Confirmed".
 * Kalender Interaktif: Tampilan visual kalender bulanan yang menandai tanggal-tanggal yang sudah ter-booking.
 
-4. ### Modul Pembayaran \& Invoicing
+### 4. Modul Pembayaran & Invoicing
 
 Pelacakan finansial sederhana untuk setiap pesanan.
 
@@ -39,14 +39,14 @@ Pelacakan finansial sederhana untuk setiap pesanan.
 * Automatic Invoice Number: Generate nomor invoice unik setiap kali pesanan dibuat (Format: INV/YYYYMMDD/XXXX).
 * Daftar Piutang: Filter khusus untuk melihat pesanan mana saja yang belum mencapai status "Lunas".
 
-5. ### Modul Guest Management (Client Service)
+### 5.  Modul Guest Management (Client Service)
 
 Layanan tambahan untuk meningkatkan nilai jual agensi ke klien.
 
 * Buku Tamu Digital: CRUD daftar tamu untuk masing-masing event/klien.
 * Digital Invitation Link: Generator link sederhana untuk undangan digital yang bisa dibagikan klien ke tamu mereka via WhatsApp.
 
-6. ### Modul Distribusi Informasi (Admin ke Lapangan)
+### 6.  Modul Distribusi Informasi (Admin ke Lapangan)
 
 Mekanisme serah terima data operasional agar tim lapangan tahu apa yang harus dikerjakan.
 
@@ -55,19 +55,12 @@ Mekanisme serah terima data operasional agar tim lapangan tahu apa yang harus di
   * Nama Klien \& Kontak.
   * Lokasi \& Waktu (Akad/Resepsi).
   * Checklist Detail Paket (Apa saja yang harus disiapkan tim dekorasi, katering, dll).
-* Mobile-Friendly Summary Page: Halaman khusus yang dioptimasi untuk layar HP, agar tim lapangan bisa login dan melihat daftar checklist persiapan secara real-time tanpa perlu membuka file PDF.
-
+  
 #### Alur Kerja Sistem (Workflow)
 
 1. Pemesanan: Admin mengisi form pesanan berdasarkan konsultasi klien.
 2. Validasi: Sistem memastikan tanggal tersedia.
-
 3. Pembayaran: Admin mencatat pembayaran DP; status event berubah menjadi "Confirmed".
-
 4. Penugasan: Admin men-generate Work Order (PDF) atau membagikan Link Detail kepada Pengurus Lapangan.
-
-5. Eksekusi: Tim lapangan bekerja berdasarkan checklist paket yang tertera di dokumen/halaman summary tersebut.
-
-Catatan Teknis: \* Aplikasi harus fully responsive (nyaman dibuka di laptop admin maupun HP tim lapangan).
 
 * Penyimpanan data menggunakan database relasional untuk menjaga integritas jadwal (mencegah duplikasi data tanggal).

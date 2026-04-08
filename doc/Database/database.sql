@@ -1,12 +1,17 @@
 -- Skema Database untuk Sistem Manajemen Wedding Organizer (MVP)
 -- Fokus: Admin Internal, Paket Tetap, Validasi Jadwal, dan Distribusi Lapangan.
 
+-- buat database dengan nama 'wedding_organizer'
+CREATE DATABASE IF NOT EXISTS wedding_organizer;
+
+USE wedding_organizer;
+
 -- 1. Tabel Akun Admin
 -- Mengelola akses masuk untuk staf administrasi dan owner.
 CREATE TABLE admins (
 id INT AUTO_INCREMENT PRIMARY KEY,
 username VARCHAR(50) UNIQUE NOT NULL,
-password VARCHAR(255) NOT NULL, -- Hash password (e.g., bcrypt)
+password VARCHAR(255) NOT NULL,
 full_name VARCHAR(100) NOT NULL,
 role ENUM('admin', 'owner') DEFAULT 'admin',
 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
