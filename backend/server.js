@@ -5,7 +5,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const bookingRoutes = require("./routes/bookingRoutes");
+const bookingRoutes = require("./routes/event");
 app.use("/api", bookingRoutes);
 
 app.listen(3000, () => {
