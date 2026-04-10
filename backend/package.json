@@ -7,7 +7,7 @@
     "doc": "doc"
   },
   "scripts": {
-    "dev": "ts-node-dev src/index.ts",
+    "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,16 +23,20 @@
   },
   "homepage": "https://github.com/Kavleri/stack-tek-tek#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
-    "nodemon": "^3.1.14",
-    "pg": "^8.20.0"
+    "mysql2": "^3.6.0",
+    "nodemon": "^3.1.14"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^25.5.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^6.0.2"
