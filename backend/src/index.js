@@ -1,26 +1,28 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import morgan from 'morgan';
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+const morgan = require('morgan');
 
-// Load varibel dari .env
-dotenv.config();
+const adminRoutes = require('../routes/adminRoutes');
+// Import file koneksi database agar langsung teruji saat server jalan
+require('../config/database');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
 // Set middleware
-app.use(cors({ origin: 'http://localhost:5173' })); // Biar FE vite (5173) boleh ngambil data
+app.use(cors({ origin: 'http://localhost:5173' })); // FE Vite
 app.use(express.json());
 app.use(morgan('dev')); // Buat logging di terminal
 
+// Register admin routes
+app.use('/api/admins', adminRoutes);
+
 // Rute tes buat ngecek koneksi dari frontend
 app.get('/api/status', (req, res) => {
-  // Karena disuruh pakai data dummy (lokal) dulu, kita balikin JSON hardcode aja
-  // Nanti ke depannya ini bakal konek beneran ke Database (Supabase)
   res.json({
     message: 'Backend berhasil nyambung ke Frontend!',
-    databaseStatus: 'Sedang pakai data DUMMY lokal (Bukan Supabase beneran)',
+    databaseStatus: 'Sedang pakai MySQL Lokal',
     dummyData: {
       client: 'Kavleri',
       event: 'Dream Syariah Wedding',
