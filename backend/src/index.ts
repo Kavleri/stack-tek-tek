@@ -2,8 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
-import pool from './config/db.ts';
-import weddingPackageRoutes from './routes/weddingPackageRoutes.ts';
+import pool from '../config/db.ts';
+import weddingPackageRoutes from '../routes/weddingPackageRoutes.ts';
 
 // Load varibel dari .env
 dotenv.config();

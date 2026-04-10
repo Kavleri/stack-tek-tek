@@ -6,10 +6,17 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": true,
+    "ignoreDeprecations": "6.0",
     "strict": true,
     "skipLibCheck": true,
     "types": ["node"],
     "noEmit": true
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "config/**/*.ts",
+    "controllers/**/*.ts",
+    "models/**/*.ts",
+    "routes/**/*.ts"
+  ]
 }
