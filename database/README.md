@@ -2,6 +2,12 @@
 
 Folder ini khusus buat nyimpen file-file database kita ya guys.
 
-Rencananya sih kita mau pakai **Supabase (Postgres)** buat nyimpen data aslinya nanti. Sementara ini, backend cuma nembak data **dummy (lokalan)** dulu aja sampe ntar ketahuan bentuk tabel aslinya kaya gimana.
+Pilihan database tim sekarang diseragamkan ke **MySQL**.
 
-🚨 **Penting buat tim:** Tolong jangan asal masukin kodingan / `CREATE TABLE` ke sini dulu sebelum kita diskusiin model struktur datanya (entitas klien, vendor, dll). Biar nggak kerja dua kali. Ntar kalo udah fix, baru kita taro scriptnya di `schema.sql`.
+File utama yang dipakai:
+- `schema.sql` untuk skema tabel inti.
+- `dummy_data.sql` untuk seed data awal (dummy).
+
+Urutan eksekusi awal:
+1. Jalankan `schema.sql` dulu.
+2. Lanjut `dummy_data.sql` kalau butuh data contoh untuk testing API/frontend.

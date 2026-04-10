@@ -9,7 +9,7 @@ Tolong tumpahin aja ide kasarnya di bawah sini yak, anggap aja kayak papan tulis
 ---
 
 **Agenda yang Menunggu Persetujuan Tim:**
-- [ ] Rancangan pasti Tabel Database (Supabase)
+- [ ] Rancangan pasti Tabel Database (MySQL)
 - [ ] Fitur apa yang mau diprioritaskan minggu ini (FE atau BE?)
 - [ ] Siapa bagian yang pegang komponen Frontend
 
