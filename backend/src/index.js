@@ -32,5 +32,5 @@ app.get('/api/status', (req, res) => {
 
 // Jalanin servernya
 app.listen(port, () => {
-  console.log(`🚀 Yuhu! Backend jalan lancar di http://localhost:${port}`);
+  console.log(`Menjalankan Backend di http://localhost:${port}`);
 });
