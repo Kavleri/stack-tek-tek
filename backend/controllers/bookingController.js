@@ -1,4 +1,4 @@
-const db = require("../config/booking");
+const db = require("../config/database");
 
 // generate invoice
 function generateInvoice() {
@@ -11,7 +11,7 @@ function generateInvoice() {
 }
 
 // CREATE BOOKING
-exports.createBooking = (req, res) => {
+exports.createBooking = async (req, res) => {
     const {
         client_name,
         client_phone,
@@ -35,8 +35,8 @@ exports.createBooking = (req, res) => {
         AND status != 'cancelled'
     `;
 
-    db.query(checkQuery, [event_date], (err, result) => {
-        if (err) return res.status(500).json(err);
+    try {
+        const [result] = await db.query(checkQuery, [event_date]);
 
         if (result[0].total > 0) {
             return res.json({
@@ -52,7 +52,7 @@ exports.createBooking = (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        db.query(insertQuery, [
+        await db.query(insertQuery, [
             invoice,
             client_name,
             client_phone,
@@ -62,21 +62,23 @@ exports.createBooking = (req, res) => {
             location_address,
             google_maps_link,
             package_id
-        ], (err) => {
-            if (err) return res.status(500).json(err);
+        ]);
 
-            res.json({
-                message: "Booking berhasil!",
-                invoice
-            });
+        res.json({
+            message: "Booking berhasil!",
+            invoice
         });
-    });
+    } catch (err) {
+        return res.status(500).json(err);
+    }
 };
 
 // GET PACKAGES
-exports.getPackages = (req, res) => {
-    db.query("SELECT * FROM wedding_packages WHERE is_active = 1", (err, result) => {
-        if (err) return res.status(500).json(err);
+exports.getPackages = async (req, res) => {
+    try {
+        const [result] = await db.query("SELECT * FROM wedding_packages WHERE is_active = 1");
         res.json(result);
-    });
+    } catch (err) {
+        return res.status(500).json(err);
+    }
 };

@@ -4,6 +4,8 @@ require('dotenv').config();
 const morgan = require('morgan');
 
 const adminRoutes = require('../routes/adminRoutes');
+const bookingRoutes = require('../routes/event');
+const weddingPackageRoutes = require('../routes/weddingPackageRoutes');
 // Import file koneksi database agar langsung teruji saat server jalan
 require('../config/database');
 
@@ -17,6 +19,8 @@ app.use(morgan('dev')); // Buat logging di terminal
 
 // Register admin routes
 app.use('/api/admins', adminRoutes);
+app.use('/api', bookingRoutes);
+app.use('/api/wedding-packages', weddingPackageRoutes);
 
 // Rute tes buat ngecek koneksi dari frontend
 app.get('/api/status', (req, res) => {

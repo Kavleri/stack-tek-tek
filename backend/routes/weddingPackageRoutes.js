@@ -1,13 +1,13 @@
-import { Router } from 'express';
-import {
+const express = require('express');
+const {
   createWeddingPackageHandler,
   deleteWeddingPackageHandler,
   getWeddingPackageById,
   getWeddingPackages,
   updateWeddingPackageHandler,
-} from '../controllers/weddingPackageController.ts';
+} = require('../controllers/weddingPackageController');
 
-const router = Router();
+const router = express.Router();
 
 router.get('/', getWeddingPackages);
 router.get('/:id', getWeddingPackageById);
@@ -15,4 +15,4 @@ router.post('/', createWeddingPackageHandler);
 router.put('/:id', updateWeddingPackageHandler);
 router.delete('/:id', deleteWeddingPackageHandler);
 
-export default router;
+module.exports = router;

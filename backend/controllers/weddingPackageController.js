@@ -1,13 +1,12 @@
-import { Request, Response } from 'express';
-import {
+const {
   createWeddingPackage,
   deleteWeddingPackage,
   findAllWeddingPackages,
   findWeddingPackageById,
   updateWeddingPackage,
-} from '../models/weddingPackageModel.ts';
+} = require('../models/weddingPackageModel');
 
-function parseBoolean(value: unknown): boolean | undefined {
+function parseBoolean(value) {
   if (value === undefined) {
     return undefined;
   }
@@ -29,13 +28,13 @@ function parseBoolean(value: unknown): boolean | undefined {
   return undefined;
 }
 
-export async function getWeddingPackages(req: Request, res: Response) {
+async function getWeddingPackages(req, res) {
   const includeInactive = req.query.includeInactive !== 'false';
   const packages = await findAllWeddingPackages(includeInactive);
   res.json({ data: packages });
 }
 
-export async function getWeddingPackageById(req: Request, res: Response) {
+async function getWeddingPackageById(req, res) {
   const id = Number(req.params.id);
 
   if (Number.isNaN(id)) {
@@ -53,8 +52,8 @@ export async function getWeddingPackageById(req: Request, res: Response) {
   res.json({ data: weddingPackage });
 }
 
-export async function createWeddingPackageHandler(req: Request, res: Response) {
-  const { package_name, price, description, is_active } = req.body ?? {};
+async function createWeddingPackageHandler(req, res) {
+  const { package_name, price, description, is_active } = req.body || {};
 
   if (typeof package_name !== 'string' || package_name.trim() === '') {
     res.status(400).json({ message: 'Nama paket wajib diisi' });
@@ -78,7 +77,7 @@ export async function createWeddingPackageHandler(req: Request, res: Response) {
   res.status(201).json({ message: 'Paket berhasil dibuat', data: weddingPackage });
 }
 
-export async function updateWeddingPackageHandler(req: Request, res: Response) {
+async function updateWeddingPackageHandler(req, res) {
   const id = Number(req.params.id);
 
   if (Number.isNaN(id)) {
@@ -86,13 +85,8 @@ export async function updateWeddingPackageHandler(req: Request, res: Response) {
     return;
   }
 
-  const { package_name, price, description, is_active } = req.body ?? {};
-  const payload: {
-    package_name?: string;
-    price?: number;
-    description?: string | null;
-    is_active?: boolean;
-  } = {};
+  const { package_name, price, description, is_active } = req.body || {};
+  const payload = {};
 
   if (package_name !== undefined) {
     if (typeof package_name !== 'string' || package_name.trim() === '') {
@@ -133,7 +127,7 @@ export async function updateWeddingPackageHandler(req: Request, res: Response) {
   res.json({ message: 'Paket berhasil diperbarui', data: weddingPackage });
 }
 
-export async function deleteWeddingPackageHandler(req: Request, res: Response) {
+async function deleteWeddingPackageHandler(req, res) {
   const id = Number(req.params.id);
 
   if (Number.isNaN(id)) {
@@ -150,3 +144,11 @@ export async function deleteWeddingPackageHandler(req: Request, res: Response) {
 
   res.json({ message: 'Paket berhasil dihapus' });
 }
+
+module.exports = {
+  createWeddingPackageHandler,
+  deleteWeddingPackageHandler,
+  getWeddingPackageById,
+  getWeddingPackages,
+  updateWeddingPackageHandler,
+};

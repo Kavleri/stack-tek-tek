@@ -2,6 +2,10 @@ const AdminModel = require('../models/adminModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+function looksLikeBcryptHash(value) {
+  return typeof value === 'string' && /^\$2[aby]\$\d{2}\$/.test(value);
+}
+
 const authController = {
   // Login
   login: async (req, res) => {
@@ -16,8 +20,20 @@ const authController = {
         return res.status(401).json({ message: 'Username atau password salah.' });
       }
 
-      // Verifikasi password
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      // Verifikasi password dengan fallback untuk data lama yang masih plain text.
+      let isPasswordValid = false;
+
+      if (looksLikeBcryptHash(user.password)) {
+        isPasswordValid = await bcrypt.compare(password, user.password);
+      } else {
+        isPasswordValid = password === user.password;
+
+        // Upgrade password legacy ke hash bcrypt saat login berhasil.
+        if (isPasswordValid) {
+          await AdminModel.updatePassword(user.id, password);
+        }
+      }
+
       if (!isPasswordValid) {
         return res.status(401).json({ message: 'Username atau password salah.' });
       }
