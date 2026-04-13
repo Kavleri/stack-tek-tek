@@ -10,6 +10,8 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+*.env
+*.env.*
 
 # Build outputs
 dist/
@@ -78,6 +80,21 @@ jspm_packages/
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+
+# Local editor workspace settings
+.vscode/
+
+# Postman local workspace folders
+.postman/
+postman/
+**/postman-environment*.json
+**/postman_environment*.json
+
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
 
 # Database files (if any local DB)
 *.db
