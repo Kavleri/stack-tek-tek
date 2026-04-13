@@ -1,6 +1,5 @@
 const db = require("../config/database");
 
-// generate invoice
 function generateInvoice() {
     const date = new Date();
     const y = date.getFullYear();
@@ -10,7 +9,6 @@ function generateInvoice() {
     return `INV/${y}${m}${d}/${rand}`;
 }
 
-// CREATE BOOKING
 exports.createBooking = async (req, res) => {
     const {
         client_name,
@@ -27,7 +25,6 @@ exports.createBooking = async (req, res) => {
         return res.json({ message: "Data belum lengkap!" });
     }
 
-    // VALIDASI DOUBLE BOOKING
     const checkQuery = `
         SELECT COUNT(*) as total 
         FROM events 
@@ -73,7 +70,6 @@ exports.createBooking = async (req, res) => {
     }
 };
 
-// GET PACKAGES
 exports.getPackages = async (req, res) => {
     try {
         const [result] = await db.query("SELECT * FROM wedding_packages WHERE is_active = 1");

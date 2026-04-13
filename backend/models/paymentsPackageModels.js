@@ -2,53 +2,24 @@
 
 class payment {
 
-  // GET ALL
-  static getAll(callback) {
-    const sql = "SELECT * FROM payments";
-    db.query(sql, callback);
+  static async getAll() {
+    const [rows] = await db.query("SELECT * FROM payments");
+    return rows;
   }
 
-  // GET BY ID
-  static getById(id, callback) {
-    const sql = "SELECT * FROM payments WHERE id = ?";
-    db.query(sql, [id], callback);
+  static async getById(id) {
+    const [rows] = await db.query("SELECT * FROM payments WHERE id = ?", [id]);
+    return rows;
   }
 
-  // CREATE
-  static create(data, callback) {
+  static async create(data) {
     const sql = `
       INSERT INTO payments 
-      (event_id, payment_amount, payment_date, payment_type, payment_method, receipt_note, proof_of_payment)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      (event_id, payment_amount, payment_date, payment_type, payment_method, receipt_note, proof_of_payment, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [
-      data.event_id,
-      data.payment_amount,
-      data.payment_date,
-      data.payment_type,
-      data.payment_method,
-      data.receipt_note,
-      data.proof_of_payment
-    ], callback);
-  }
-
-  // UPDATE
-  static update(id, data, callback) {
-    const sql = `
-      UPDATE payments
-      SET 
-        event_id = ?, 
-        payment_amount = ?, 
-        payment_date = ?, 
-        payment_type = ?, 
-        payment_method = ?, 
-        receipt_note = ?, 
-        proof_of_payment = ?
-      WHERE id = ?
-    `;
-
-    db.query(sql, [
+    const [result] = await db.query(sql, [
       data.event_id,
       data.payment_amount,
       data.payment_date,
@@ -56,14 +27,45 @@ class payment {
       data.payment_method,
       data.receipt_note,
       data.proof_of_payment,
-      id
-    ], callback);
+      data.status
+    ]);
+
+    return result;
   }
 
-  // DELETE
-  static delete(id, callback) {
-    const sql = "DELETE FROM payments WHERE id = ?";
-    db.query(sql, [id], callback);
+  static async update(id, data) {
+    const sql = `
+      UPDATE payments
+      SET 
+        event_id = COALESCE(?, event_id), 
+        payment_amount = COALESCE(?, payment_amount), 
+        payment_date = COALESCE(?, payment_date), 
+        payment_type = COALESCE(?, payment_type), 
+        payment_method = COALESCE(?, payment_method), 
+        receipt_note = COALESCE(?, receipt_note), 
+        proof_of_payment = COALESCE(?, proof_of_payment),
+        status = COALESCE(?, status)
+      WHERE id = ?
+    `;
+
+    const [result] = await db.query(sql, [
+      data.event_id,
+      data.payment_amount,
+      data.payment_date,
+      data.payment_type,
+      data.payment_method,
+      data.receipt_note,
+      data.proof_of_payment,
+      data.status,
+      id
+    ]);
+
+    return result;
+  }
+
+  static async delete(id) {
+    const [result] = await db.query("DELETE FROM payments WHERE id = ?", [id]);
+    return result;
   }
 
 }

@@ -4,12 +4,9 @@ const errorHandler = require("../utils/errorHandler");
 
 class paymentController {
 
-  // GET ALL
-  index(req, res) {
-    payment.getAll((err, results) => {
-      if (err) {
-        return res.json({ message: "Gagal ambil data payment" });
-      }
+  async index(req, res) {
+    try {
+      const results = await payment.getAll();
 
       if (results.length === 0) {
         return res.status(404).json({ message: "Data payment tidak ditemukan" });
@@ -19,15 +16,18 @@ class paymentController {
         message: "Berhasil ambil semua data payment",
         data: results,
       });
-    });
+    } catch (err) {
+      return res.status(500).json({ message: "Gagal ambil data payment", error: err.message });
+    }
   }
 
-  // GET BY ID
-  show(req, res) {
+  async show(req, res) {
     const { id } = req.params;
 
-    payment.getById(id, (err, results) => {
-      if (err || results.length === 0) {
+    try {
+      const results = await payment.getById(id);
+
+      if (results.length === 0) {
         return res.status(404).json({ message: "Data tidak ditemukan" });
       }
 
@@ -35,12 +35,16 @@ class paymentController {
         message: "Detail payment",
         data: results[0],
       });
-    });
+    } catch (err) {
+      return res.status(500).json({ message: "Gagal ambil detail payment", error: err.message });
+    }
   }
 
-  // CREATE
-  store(req, res) {
-    const data = req.body;
+  async store(req, res) {
+    const data = {
+      ...req.body,
+      status: req.body.status || "pending",
+    };
 
     const validationError = validatePayment(data);
 
@@ -48,47 +52,42 @@ class paymentController {
       return errorHandler(res, validationError, 400, "Validasi gagal");
     }
 
-    payment.create(data, (err) => {
-      if (err) {
-        return errorHandler(res, err, 500, "Gagal tambah payment");
-      }
-
+    try {
+      await payment.create(data);
       res.status(201).json({
         message: "Payment berhasil ditambahkan",
         data: data,
       });
-    });
+    } catch (err) {
+      return errorHandler(res, err, 500, "Gagal tambah payment");
+    }
   }
 
-  // UPDATE
-  update(req, res) {
+  async update(req, res) {
     const { id } = req.params;
     const data = req.body;
 
-    payment.update(id, data, (err) => {
-      if (err) {
-        return res.json({ message: "Gagal update payment" });
-      }
-
+    try {
+      await payment.update(id, data);
       res.json({
         message: "Payment berhasil diupdate",
       });
-    });
+    } catch (err) {
+      return res.status(500).json({ message: "Gagal update payment", error: err.message });
+    }
   }
 
-  // DELETE
-  destroy(req, res) {
+  async destroy(req, res) {
     const { id } = req.params;
 
-    payment.delete(id, (err) => {
-      if (err) {
-        return res.json({ message: "Gagal hapus payment" });
-      }
-
+    try {
+      await payment.delete(id);
       res.json({
         message: "Payment berhasil dihapus",
       });
-    });
+    } catch (err) {
+      return res.status(500).json({ message: "Gagal hapus payment", error: err.message });
+    }
   }
 }
 

@@ -7,7 +7,6 @@ function looksLikeBcryptHash(value) {
 }
 
 const authController = {
-  // Login
   login: async (req, res) => {
     try {
       const { username, password } = req.body;
@@ -20,7 +19,6 @@ const authController = {
         return res.status(401).json({ message: 'Username atau password salah.' });
       }
 
-      // Verifikasi password dengan fallback untuk data lama yang masih plain text.
       let isPasswordValid = false;
 
       if (looksLikeBcryptHash(user.password)) {
@@ -28,7 +26,6 @@ const authController = {
       } else {
         isPasswordValid = password === user.password;
 
-        // Upgrade password legacy ke hash bcrypt saat login berhasil.
         if (isPasswordValid) {
           await AdminModel.updatePassword(user.id, password);
         }
@@ -38,11 +35,10 @@ const authController = {
         return res.status(401).json({ message: 'Username atau password salah.' });
       }
 
-      // Generate JWT
       const token = jwt.sign(
         { id: user.id, username: user.username, role: user.role, fullName: user.full_name },
         process.env.JWT_SECRET || 'super_secret_key_123_wedding',
-        { expiresIn: '12h' } // Token berlaku 12 jam
+        { expiresIn: '12h' }
       );
 
       res.json({
@@ -61,7 +57,6 @@ const authController = {
     }
   },
 
-  // Mendapatkan daftar admin (Restricted)
   getAdmins: async (req, res) => {
     try {
       const admins = await AdminModel.findAll();
@@ -72,7 +67,6 @@ const authController = {
     }
   },
 
-  // Menambah admin baru (Restricted)
   createAdmin: async (req, res) => {
     try {
       const { username, password, fullName, role } = req.body;
@@ -80,7 +74,6 @@ const authController = {
         return res.status(400).json({ message: 'Username, password, dan full name harus diisi.' });
       }
 
-      // Cek apakah username sudah dipakai
       const existingUser = await AdminModel.findByUsername(username);
       if (existingUser) {
         return res.status(400).json({ message: 'Username sudah digunakan.' });
@@ -94,7 +87,6 @@ const authController = {
     }
   },
 
-  // Mengubah profil admin (Restricted)
   updateAdmin: async (req, res) => {
     try {
       const { id } = req.params;
@@ -116,12 +108,10 @@ const authController = {
     }
   },
 
-  // Menghapus admin (Restricted)
   deleteAdmin: async (req, res) => {
     try {
       const { id } = req.params;
-      
-      // Mencegah admin menghapus dirinya sendiri
+
       if (parseInt(id) === req.user.id) {
         return res.status(403).json({ message: 'Anda tidak bisa menghapus akun Anda sendiri.' });
       }
@@ -138,7 +128,6 @@ const authController = {
     }
   },
 
-  // Reset password admin lain (Restricted)
   resetPassword: async (req, res) => {
     try {
       const { id } = req.params;

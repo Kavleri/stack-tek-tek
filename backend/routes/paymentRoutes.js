@@ -3,24 +3,15 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/", (req, res) => {
+router.get("/health", (req, res) => {
   res.send("API Payments is running");
 });
 
-// GET ALL
-router.get("/payments", paymentController.index);
-
-// GET BY ID
-router.get("/payments/:id", paymentController.show);
-
-// CREATE
-router.post("/payments", paymentController.store);
-
-// UPDATE
-router.put("/payments/:id", paymentController.update);
-
-// DELETE
-router.delete("/payments/:id", paymentController.destroy);
+router.get("/", paymentController.index);
+router.get("/:id", paymentController.show);
+router.post("/", paymentController.store);
+router.put("/:id", paymentController.update);
+router.delete("/:id", paymentController.destroy);
 
 module.exports = router;
 

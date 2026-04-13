@@ -6,7 +6,6 @@ function App() {
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    // Coba nembak ke port 5000 (Backend Express)
     fetch('http://localhost:5000/api/status')
       .then((res) => {
         if (!res.ok) throw new Error('Nggak bisa konek ke backend, portnya udah jalan belom?');

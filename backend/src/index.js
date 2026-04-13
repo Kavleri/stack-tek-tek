@@ -7,24 +7,20 @@ const adminRoutes = require('../routes/adminRoutes');
 const bookingRoutes = require('../routes/event');
 const weddingPackageRoutes = require('../routes/weddingPackageRoutes');
 const paymentRoutes = require('../routes/paymentRoutes');
-// Import file koneksi database agar langsung teruji saat server jalan
 require('../config/database');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Set middleware
-app.use(cors({ origin: 'http://localhost:5173' })); // FE Vite
+app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
-app.use(morgan('dev')); // Buat logging di terminal
+app.use(morgan('dev'));
 
-// Register admin routes
 app.use('/api/admins', adminRoutes);
 app.use('/api', bookingRoutes);
 app.use('/api/wedding-packages', weddingPackageRoutes);
 app.use('/api/payments', paymentRoutes);
 
-// Rute tes buat ngecek koneksi dari frontend
 app.get('/api/status', (req, res) => {
   res.json({
     message: 'Backend berhasil nyambung ke Frontend!',
@@ -36,7 +32,6 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// Jalanin servernya
 app.listen(port, () => {
   console.log(`Menjalankan Backend di http://localhost:${port}`);
 });
