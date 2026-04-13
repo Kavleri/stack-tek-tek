@@ -12,4 +12,14 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+// Test koneksi dengan error handling
+pool.getConnection((err, connection) => {
+  if (err) {
+    console.error('❌ Koneksi database gagal:', err.message);
+  } else {
+    console.log('✅ Koneksi database berhasil');
+    connection.release();
+  }
+});
+
 module.exports = pool;
