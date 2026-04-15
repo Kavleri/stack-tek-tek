@@ -40,6 +40,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `guests` WRITE;
 /*!40000 ALTER TABLE `guests` DISABLE KEYS */;
+INSERT INTO `guests` VALUES (1,1,'Andi Pratama','081234567890','andi-pratama',0,'2026-04-13 08:00:00'),(2,2,'Siti Rahma','081298765432','siti-rahma',1,'2026-04-13 08:05:00');
 /*!40000 ALTER TABLE `guests` ENABLE KEYS */;
 UNLOCK TABLES;
 
