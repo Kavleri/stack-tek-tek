@@ -73,6 +73,11 @@ async function index(req, res) {
 async function show(req, res) {
   try {
     const { id } = req.params;
+
+    if (Number.isNaN(Number(id))) {
+      return res.status(400).json({ message: 'id harus berupa angka' });
+    }
+
     const guest = await guestModel.findById(id);
 
     if (!guest) {
@@ -143,6 +148,11 @@ async function store(req, res) {
 async function update(req, res) {
   try {
     const { id } = req.params;
+
+    if (Number.isNaN(Number(id))) {
+      return res.status(400).json({ message: 'id harus berupa angka' });
+    }
+
     const payload = {
       ...req.body,
     };
@@ -178,6 +188,11 @@ async function update(req, res) {
 async function destroy(req, res) {
   try {
     const { id } = req.params;
+
+    if (Number.isNaN(Number(id))) {
+      return res.status(400).json({ message: 'id harus berupa angka' });
+    }
+
     const deleted = await guestModel.remove(id);
 
     if (!deleted) {
