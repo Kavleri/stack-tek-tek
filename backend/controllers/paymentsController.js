@@ -1,5 +1,5 @@
 ﻿const payment = require("../models/paymentsPackageModels");
-const { validatePayment } = require("../utils/validator");
+const { validateId, validatePayment } = require("../utils/validator");
 const errorHandler = require("../utils/errorHandler");
 
 class paymentController {
@@ -23,6 +23,11 @@ class paymentController {
 
   async show(req, res) {
     const { id } = req.params;
+    const idError = validateId(id);
+
+    if (idError) {
+      return res.status(400).json({ message: idError });
+    }
 
     try {
       const results = await payment.getById(id);
@@ -66,9 +71,19 @@ class paymentController {
   async update(req, res) {
     const { id } = req.params;
     const data = req.body;
+    const idError = validateId(id);
+
+    if (idError) {
+      return res.status(400).json({ message: idError });
+    }
 
     try {
-      await payment.update(id, data);
+      const result = await payment.update(id, data);
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: "Data payment tidak ditemukan" });
+      }
+
       res.json({
         message: "Payment berhasil diupdate",
       });
@@ -79,9 +94,19 @@ class paymentController {
 
   async destroy(req, res) {
     const { id } = req.params;
+    const idError = validateId(id);
+
+    if (idError) {
+      return res.status(400).json({ message: idError });
+    }
 
     try {
-      await payment.delete(id);
+      const result = await payment.delete(id);
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: "Data payment tidak ditemukan" });
+      }
+
       res.json({
         message: "Payment berhasil dihapus",
       });

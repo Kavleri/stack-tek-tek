@@ -6,6 +6,10 @@ function looksLikeBcryptHash(value) {
   return typeof value === 'string' && /^\$2[aby]\$\d{2}\$/.test(value);
 }
 
+function getJwtSecret() {
+  return process.env.JWT_SECRET;
+}
+
 const authController = {
   login: async (req, res) => {
     try {
@@ -35,9 +39,15 @@ const authController = {
         return res.status(401).json({ message: 'Username atau password salah.' });
       }
 
+      const jwtSecret = getJwtSecret();
+
+      if (!jwtSecret) {
+        return res.status(500).json({ message: 'Konfigurasi JWT_SECRET belum diatur.' });
+      }
+
       const token = jwt.sign(
         { id: user.id, username: user.username, role: user.role, fullName: user.full_name },
-        process.env.JWT_SECRET || 'super_secret_key_123_wedding',
+        jwtSecret,
         { expiresIn: '12h' }
       );
 

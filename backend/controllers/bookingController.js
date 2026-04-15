@@ -22,7 +22,11 @@ exports.createBooking = async (req, res) => {
     } = req.body;
 
     if (!client_name || !client_phone || !event_date || !event_time) {
-        return res.json({ message: "Data belum lengkap!" });
+        return res.status(400).json({ message: "Data belum lengkap!" });
+    }
+
+    if (package_id !== undefined && package_id !== null && Number.isNaN(Number(package_id))) {
+        return res.status(400).json({ message: "package_id harus berupa angka" });
     }
 
     const checkQuery = `
@@ -36,7 +40,7 @@ exports.createBooking = async (req, res) => {
         const [result] = await db.query(checkQuery, [event_date]);
 
         if (result[0].total > 0) {
-            return res.json({
+            return res.status(409).json({
                 message: "Tanggal sudah dibooking!"
             });
         }
@@ -61,7 +65,7 @@ exports.createBooking = async (req, res) => {
             package_id
         ]);
 
-        res.json({
+        res.status(201).json({
             message: "Booking berhasil!",
             invoice
         });
