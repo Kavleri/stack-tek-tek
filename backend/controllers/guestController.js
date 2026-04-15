@@ -77,7 +77,6 @@ async function show(req, res) {
     if (Number.isNaN(Number(id))) {
       return res.status(400).json({ message: 'id harus berupa angka' });
     }
-
     const guest = await guestModel.findById(id);
 
     if (!guest) {
@@ -152,7 +151,6 @@ async function update(req, res) {
     if (Number.isNaN(Number(id))) {
       return res.status(400).json({ message: 'id harus berupa angka' });
     }
-
     const payload = {
       ...req.body,
     };
@@ -192,7 +190,6 @@ async function destroy(req, res) {
     if (Number.isNaN(Number(id))) {
       return res.status(400).json({ message: 'id harus berupa angka' });
     }
-
     const deleted = await guestModel.remove(id);
 
     if (!deleted) {

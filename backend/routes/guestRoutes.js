@@ -5,7 +5,6 @@ const { authenticateToken } = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 router.use(authenticateToken);
-
 router.get('/', guestController.index);
 router.get('/event/:eventId', guestController.byEvent);
 router.get('/:id', guestController.show);
