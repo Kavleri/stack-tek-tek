@@ -5,6 +5,7 @@ const morgan = require('morgan');
 
 const adminRoutes = require('../routes/adminRoutes');
 const bookingRoutes = require('../routes/event');
+const guestRoutes = require('../routes/guestRoutes');
 const weddingPackageRoutes = require('../routes/weddingPackageRoutes');
 const paymentRoutes = require('../routes/paymentRoutes');
 require('../config/database');
@@ -18,6 +19,7 @@ app.use(morgan('dev'));
 
 app.use('/api/admins', adminRoutes);
 app.use('/api', bookingRoutes);
+app.use('/api/guests', guestRoutes);
 app.use('/api/wedding-packages', weddingPackageRoutes);
 app.use('/api/payments', paymentRoutes);
 
