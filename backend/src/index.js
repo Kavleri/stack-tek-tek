@@ -34,6 +34,17 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+
+app.use((req, res) => {
+  return res.status(404).json({ message: 'Endpoint tidak ditemukan.' });
+});
+
+app.use((err, req, res, next) => {
+  const statusCode = err.status || err.statusCode || 500;
+  const message = err.message || 'Terjadi kesalahan pada server.';
+  return res.status(statusCode).json({ message });
+});
+
 app.listen(port, () => {
   console.log(`Menjalankan Backend di http://localhost:${port}`);
 });
