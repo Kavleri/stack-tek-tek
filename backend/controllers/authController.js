@@ -11,16 +11,13 @@ function getJwtSecret() {
 }
 
 const authController = {
-  login: async (req, res) => {
+  login: async (req, res, next) => {
     try {
       const { username, password } = req.body;
-      if (!username || !password) {
-        return res.status(400).json({ message: 'Username dan password harus diisi.' });
-      }
 
       const user = await AdminModel.findByUsername(username);
       if (!user) {
-        return res.status(401).json({ message: 'Username atau password salah.' });
+        return next({ type: 'INVALID_CREDENTIALS' });
       }
 
       let isPasswordValid = false;
@@ -36,7 +33,13 @@ const authController = {
       }
 
       if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Username atau password salah.' });
+        return next({ type: 'INVALID_CREDENTIALS' });
+      }
+
+      const jwtSecret = getJwtSecret();
+
+      if (!jwtSecret) {
+        return next({ type: 'JWT_SECRET_MISSING' });
       }
 
       const jwtSecret = getJwtSecret();
@@ -62,100 +65,83 @@ const authController = {
         }
       });
     } catch (error) {
-      console.error('Error saat login:', error);
-      res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+      next(error);
     }
   },
 
-  getAdmins: async (req, res) => {
+  getAdmins: async (req, res, next) => {
     try {
       const admins = await AdminModel.findAll();
       res.json(admins);
     } catch (error) {
-      console.error('Error saat mengambil daftar admin:', error);
-      res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+      next(error);
     }
   },
 
-  createAdmin: async (req, res) => {
+  createAdmin: async (req, res, next) => {
     try {
       const { username, password, fullName, role } = req.body;
-      if (!username || !password || !fullName) {
-        return res.status(400).json({ message: 'Username, password, dan full name harus diisi.' });
-      }
 
       const existingUser = await AdminModel.findByUsername(username);
       if (existingUser) {
-        return res.status(400).json({ message: 'Username sudah digunakan.' });
+        return next({ type: 'USERNAME_TAKEN' });
       }
 
       const insertId = await AdminModel.create({ username, password, fullName, role });
       res.status(201).json({ message: 'Akun admin berhasil dibuat.', adminId: insertId });
     } catch (error) {
-      console.error('Error saat membuat admin:', error);
-      res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+      next(error);
     }
   },
 
-  updateAdmin: async (req, res) => {
+  updateAdmin: async (req, res, next) => {
     try {
       const { id } = req.params;
       const { fullName, role } = req.body;
 
-      if (!fullName) {
-        return res.status(400).json({ message: 'Full name harus diisi.' });
-      }
-
       const affectedRows = await AdminModel.update(id, { fullName, role: role || 'admin' });
       if (affectedRows === 0) {
-        return res.status(404).json({ message: 'Admin tidak ditemukan.' });
+        return next({ type: 'ADMIN_NOT_FOUND' });
       }
 
       res.json({ message: 'Profil admin berhasil diperbarui.' });
     } catch (error) {
-      console.error('Error saat update admin:', error);
-      res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+      next(error);
     }
   },
 
-  deleteAdmin: async (req, res) => {
+  deleteAdmin: async (req, res, next) => {
     try {
       const { id } = req.params;
 
       if (parseInt(id) === req.user.id) {
-        return res.status(403).json({ message: 'Anda tidak bisa menghapus akun Anda sendiri.' });
+        return next({ type: 'SELF_DELETION' });
       }
 
       const affectedRows = await AdminModel.delete(id);
       if (affectedRows === 0) {
-        return res.status(404).json({ message: 'Admin tidak ditemukan.' });
+        return next({ type: 'ADMIN_NOT_FOUND' });
       }
 
       res.json({ message: 'Admin berhasil dihapus.' });
     } catch (error) {
-      console.error('Error saat menghapus admin:', error);
-      res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+      next(error);
     }
   },
 
-  resetPassword: async (req, res) => {
+  resetPassword: async (req, res, next) => {
     try {
       const { id } = req.params;
       const { newPassword } = req.body;
 
-      if (!newPassword) {
-        return res.status(400).json({ message: 'Password baru harus diisi.' });
-      }
-
       const affectedRows = await AdminModel.updatePassword(id, newPassword);
       if (affectedRows === 0) {
-        return res.status(404).json({ message: 'Admin tidak ditemukan.' });
+        return next({ type: 'ADMIN_NOT_FOUND' });
       }
 
       res.json({ message: 'Password berhasil direset.' });
     } catch (error) {
-      console.error('Error saat mereset password:', error);
-      res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+      next(error);
     }
   }
 };

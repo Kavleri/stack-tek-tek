@@ -16,6 +16,10 @@ async function index(req, res, next) {
 async function show(req, res, next) {
   try {
     const { id } = req.params;
+
+    if (Number.isNaN(Number(id))) {
+      return res.status(400).json({ message: 'id harus berupa angka' });
+    }
     const guest = await guestModel.findById(id);
 
     if (!guest) {
@@ -83,6 +87,10 @@ async function update(req, res, next) {
 async function destroy(req, res, next) {
   try {
     const { id } = req.params;
+
+    if (Number.isNaN(Number(id))) {
+      return res.status(400).json({ message: 'id harus berupa angka' });
+    }
     const deleted = await guestModel.remove(id);
 
     if (!deleted) {
