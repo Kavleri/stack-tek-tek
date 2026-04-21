@@ -1,3 +1,5 @@
+
+
 const jwt = require('jsonwebtoken');
 
 function getJwtSecret() {
@@ -6,7 +8,8 @@ function getJwtSecret() {
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const hasBearer = typeof authHeader === 'string' && authHeader.startsWith('Bearer ');
+  const token = hasBearer ? authHeader.split(' ')[1] : null;
   const jwtSecret = getJwtSecret();
 
   if (!token) {

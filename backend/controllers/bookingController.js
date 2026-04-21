@@ -9,7 +9,7 @@ function generateInvoice() {
     return `INV/${y}${m}${d}/${rand}`;
 }
 
-exports.createBooking = async (req, res) => {
+exports.createBooking = async (req, res, next) => {
     const {
         client_name,
         client_phone,
@@ -19,15 +19,7 @@ exports.createBooking = async (req, res) => {
         location_address,
         google_maps_link,
         package_id
-    } = req.body;
-
-    if (!client_name || !client_phone || !event_date || !event_time) {
-        return res.status(400).json({ message: "Data belum lengkap!" });
-    }
-
-    if (package_id !== undefined && package_id !== null && Number.isNaN(Number(package_id))) {
-        return res.status(400).json({ message: "package_id harus berupa angka" });
-    }
+    } = req.validatedBooking;
 
     const checkQuery = `
         SELECT COUNT(*) as total 
@@ -40,9 +32,7 @@ exports.createBooking = async (req, res) => {
         const [result] = await db.query(checkQuery, [event_date]);
 
         if (result[0].total > 0) {
-            return res.status(409).json({
-                message: "Tanggal sudah dibooking!"
-            });
+            return next({ type: "BOOKING_DATE_CONFLICT" });
         }
 
         const invoice = generateInvoice();
@@ -70,15 +60,15 @@ exports.createBooking = async (req, res) => {
             invoice
         });
     } catch (err) {
-        return res.status(500).json(err);
+        return next(err);
     }
 };
 
-exports.getPackages = async (req, res) => {
+exports.getPackages = async (req, res, next) => {
     try {
         const [result] = await db.query("SELECT * FROM wedding_packages WHERE is_active = 1");
         res.json(result);
     } catch (err) {
-        return res.status(500).json(err);
+        return next(err);
     }
 };
