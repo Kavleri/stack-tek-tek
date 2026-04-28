@@ -51,7 +51,7 @@ wedding-system/
 - Eka Vitaloka
 
 ## link Sprint
-- [Sprint Report Fullstack Team stack-tek-tek](https://docs.google.com/spreadsheets/d/1MJ906FOq9rncPM8r5CBfWgvsvadBHi_s/edit?usp=sharing&ouid=104536910473143147355&rtpof=true&sd=true)
+- [Sprint Report Fullstack Team stack-tek-tek](https://drive.google.com/drive/folders/1NzvBprVKjvEeCJu8BtF5-OERPy-JzHw7?usp=sharing)
 
 ## Cara Clone
 ```bash
