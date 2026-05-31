@@ -8,6 +8,7 @@ const bookingErrorHandler = require("../utils/bookingErrorHandler");
 
 router.post("/booking", authenticateToken, authorizeRoles('admin'), bookingValidator.validateCreateBooking, bookingController.createBooking);
 router.get("/packages", bookingController.getPackages);
+router.get("/bookings", bookingController.getBookings);
 
 router.use(bookingErrorHandler);
 
