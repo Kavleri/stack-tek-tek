@@ -72,3 +72,13 @@ exports.getPackages = async (req, res, next) => {
         return next(err);
     }
 };
+
+// Return all bookings (events table)
+exports.getBookings = async (req, res, next) => {
+    try {
+        const [rows] = await db.query("SELECT * FROM events");
+        res.json(rows);
+    } catch (err) {
+        return next(err);
+    }
+};

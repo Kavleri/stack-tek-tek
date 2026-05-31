@@ -3,12 +3,14 @@ const router = express.Router();
 
 const authController = require('../controllers/authController');
 const { authenticateToken } = require('../middlewares/authMiddleware');
+const { authorizeRoles } = require('../middlewares/authorizeMiddleware');
 const authValidator = require('../utils/authValidator');
 const authErrorHandler = require('../utils/authErrorHandler');
 
 router.post('/login', authValidator.validateLogin, authController.login);
 
 router.use(authenticateToken);
+router.use(authorizeRoles('admin'));
 
 router.get('/', authController.getAdmins);
 router.post('/', authValidator.validateCreateAdmin, authController.createAdmin);
