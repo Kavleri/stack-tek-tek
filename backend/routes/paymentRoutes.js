@@ -1,5 +1,6 @@
 ﻿const paymentController = require("../controllers/paymentsController");
 const { authenticateToken } = require('../middlewares/authMiddleware');
+const { authorizeRoles } = require('../middlewares/authorizeMiddleware');
 const paymentValidator = require('../utils/paymentValidator');
 const paymentErrorHandler = require('../utils/paymentErrorHandler');
 
@@ -11,6 +12,7 @@ router.get("/health", (req, res) => {
 });
 
 router.use(authenticateToken);
+router.use(authorizeRoles('admin'));
 
 router.get("/", paymentController.index);
 router.get("/:id", paymentValidator.validatePaymentId, paymentController.show);
