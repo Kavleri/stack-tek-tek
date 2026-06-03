@@ -46,7 +46,7 @@ wedding-system/
 ## Anggota Kelompok
 - Muhammad Jibril Ibrahim
 - Nurul Hayatu Suhaila
-- Muhammad Hisyam
+- Muhammad Hisyam Alfaris
 - Anis Adriani
 - Eka Vitaloka
 

@@ -11,13 +11,16 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
-pool.getConnection((err, connection) => {
-  if (err) {
-    console.error('❌ Koneksi database gagal:', err.message);
-  } else {
+async function testDatabaseConnection() {
+  try {
+    const connection = await pool.getConnection();
     console.log('✅ Koneksi database berhasil');
     connection.release();
+  } catch (err) {
+    console.error('❌ Koneksi database gagal:', err.message);
   }
-});
+}
+
+testDatabaseConnection();
 
 module.exports = pool;
