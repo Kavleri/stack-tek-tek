@@ -1,15 +1,13 @@
 ﻿const payment = require("../models/paymentsPackageModels");
-const { validatePayment } = require("../utils/validator");
-const errorHandler = require("../utils/errorHandler");
 
 class paymentController {
 
-  async index(req, res) {
+  async index(req, res, next) {
     try {
       const results = await payment.getAll();
 
       if (results.length === 0) {
-        return res.status(404).json({ message: "Data payment tidak ditemukan" });
+        return next({ type: "PAYMENT_LIST_EMPTY" });
       }
 
       res.json({
@@ -17,18 +15,18 @@ class paymentController {
         data: results,
       });
     } catch (err) {
-      return res.status(500).json({ message: "Gagal ambil data payment", error: err.message });
+      return next(err);
     }
   }
 
-  async show(req, res) {
+  async show(req, res, next) {
     const { id } = req.params;
 
     try {
       const results = await payment.getById(id);
 
       if (results.length === 0) {
-        return res.status(404).json({ message: "Data tidak ditemukan" });
+        return next({ type: "PAYMENT_NOT_FOUND" });
       }
 
       res.json({
@@ -36,21 +34,12 @@ class paymentController {
         data: results[0],
       });
     } catch (err) {
-      return res.status(500).json({ message: "Gagal ambil detail payment", error: err.message });
+      return next(err);
     }
   }
 
-  async store(req, res) {
-    const data = {
-      ...req.body,
-      status: req.body.status || "pending",
-    };
-
-    const validationError = validatePayment(data);
-
-    if (validationError) {
-      return errorHandler(res, validationError, 400, "Validasi gagal");
-    }
+  async store(req, res, next) {
+    const data = req.validatedPayment;
 
     try {
       await payment.create(data);
@@ -59,34 +48,44 @@ class paymentController {
         data: data,
       });
     } catch (err) {
-      return errorHandler(res, err, 500, "Gagal tambah payment");
+      return next(err);
     }
   }
 
-  async update(req, res) {
+  async update(req, res, next) {
     const { id } = req.params;
-    const data = req.body;
+    const data = req.validatedPayment;
 
     try {
-      await payment.update(id, data);
+      const result = await payment.update(id, data);
+
+      if (result.affectedRows === 0) {
+        return next({ type: "PAYMENT_NOT_FOUND" });
+      }
+
       res.json({
         message: "Payment berhasil diupdate",
       });
     } catch (err) {
-      return res.status(500).json({ message: "Gagal update payment", error: err.message });
+      return next(err);
     }
   }
 
-  async destroy(req, res) {
+  async destroy(req, res, next) {
     const { id } = req.params;
 
     try {
-      await payment.delete(id);
+      const result = await payment.delete(id);
+
+      if (result.affectedRows === 0) {
+        return next({ type: "PAYMENT_NOT_FOUND" });
+      }
+
       res.json({
         message: "Payment berhasil dihapus",
       });
     } catch (err) {
-      return res.status(500).json({ message: "Gagal hapus payment", error: err.message });
+      return next(err);
     }
   }
 }
