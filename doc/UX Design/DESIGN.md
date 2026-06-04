@@ -1,90 +1,84 @@
-# Design System Strategy: The Curated Sanctuary
+# Design System Document: Dream Wedding Syariah
 
 ## 1. Overview & Creative North Star
-The "Creative North Star" for this design system is **The Curated Sanctuary**. 
+**Creative North Star: "The Sacred Curator"**
+This design system is the visual foundation for **Dream Wedding Syariah**, built to bridge the gap between divine tradition and modern luxury. It rejects the "app-like" feel of standard digital tools in favor of a high-end editorial experience that honors faith. By utilizing expansive whitespace, intentional asymmetry, and a focus on tonal depth, the interface should feel more like a bespoke wedding invitation or a luxury fashion magazine. We don't just organize events; we curate a sacred legacy of love and values.
 
-In the context of a Syariah-themed wedding management platform, we must move away from the frantic, cluttered look of typical "admin dashboards." Instead, we treat the UI as a digital extension of a high-end concierge service. The design breaks the "generic template" look through **intentional asymmetry**, high-contrast typography scales, and a philosophy of **Tonal Depth**. By utilizing wide gutters, overlapping editorial elements, and a serif-heavy hierarchy, we create a workspace that feels calm, authoritative, and deeply intentional.
+To achieve this, the system breaks from traditional rigid grids. Elements should occasionally overlap, typography scales must be dramatic, and "breathing room" is treated as a core functional component that reflects the serenity of a Syariah-compliant union.
 
 ---
 
-## 2. Colors: Tonal Depth & The "No-Line" Rule
-This system utilizes a sophisticated palette where the Deep Navy (`#0B2545`) provides an anchor of trust, and the Soft Teal (`#B2D0CC`) and Cream (`#F5F0E0`) introduce a soft, breathable elegance.
+## 2. Colors
+Our palette is anchored in the deep, authoritative **Navy Blue (#001F3F)** representing trust and the regal, metallic-inspired **Gold (#C5A059)** representing the value of the union.
 
 ### The "No-Line" Rule
-Standard 1px borders are strictly prohibited for sectioning. Structural boundaries must be defined solely through:
-1.  **Background Color Shifts:** Placing a `surface-container-low` section against a `surface` background.
-2.  **Tonal Transitions:** Using subtle shifts in the neutral scale to define where one content block ends and another begins.
+Explicitly prohibited: 1px solid borders for sectioning or containment. Boundaries must be defined through:
+- **Background Color Shifts:** Transitioning from `surface` to `surface-container-low`.
+- **Tonal Transitions:** Using subtle value shifts to imply edge without a hard line, mimicking the softness of premium silk.
 
 ### Surface Hierarchy & Nesting
-Treat the UI as physical layers of fine paper. 
-- **Base Layer:** `surface` (#faf9fc).
-- **Secondary Containers:** `surface-container-low` (#f5f3f6).
-- **Interactive/Primary Cards:** `surface-container-lowest` (#ffffff) to provide a "pop" of clean white.
-- **Nesting:** Never place two containers of the same tier inside each other. Use the hierarchy (Lowest to Highest) to guide the eye from the general workspace to specific interactive elements.
+Treat the UI as physical layers of fine paper and frosted glass. Use the `surface-container` tiers to create depth:
+- **Base Layer:** `surface` (#f8f9fa).
+- **Secondary Content:** `surface-container-low` (#f3f4f5).
+- **Interactive Cards/Modals:** `surface-container-lowest` (#ffffff) to provide a "lifted" feel against the off-white base.
 
-### Glass & Signature Textures
-- **The Glass Factor:** Floating navigation or modal overlays must use a `backdrop-blur` (12px-20px) combined with a semi-transparent `surface-container-lowest` color. 
-- **Gradients:** To add "soul," use a subtle linear gradient on primary CTAs transitioning from `primary_container` (#0b2545) to `primary` (#001026) at a 135-degree angle.
-
----
-
-## 3. Typography: Editorial Authority
-The typography system relies on the interplay between the timeless **Noto Serif** and the modern, highly legible **Manrope**.
-
-- **Display & Headlines (Noto Serif):** Used for page titles, section headers, and high-level data summaries. This conveys a sense of traditional Syariah values and professional heritage.
-- **Body & Labels (Manrope):** Used for all data entry, descriptions, and functional UI. The clean sans-serif ensures that complex management tasks remain legible and reduce cognitive load.
-- **Hierarchy Tip:** Use `display-md` for empty state headers and `headline-sm` for card titles. Always maintain a 2:1 ratio between heading sizes and body text to ensure a "magazine" feel.
+### Glass & Gradient Rules
+- **Signature Textures:** For Hero backgrounds and Primary CTAs, use a subtle radial gradient: `primary` (#000613) to `primary_container` (#001f3f). This adds a "soul" to the depth that flat navy cannot provide.
+- **Glassmorphism:** Use semi-transparent versions of `surface_container_lowest` with a `backdrop-blur (20px)` for floating navigation bars to maintain the feeling of airy, modern luxury.
 
 ---
 
-## 4. Elevation & Depth: Tonal Layering
-We reject the heavy, "drop-shadow-everything" approach of 2010s UI. We define depth through **Tonal Layering**.
+## 3. Typography
+The typography is a dialogue between the timelessness of a serif and the precision of a modern sans-serif.
 
-- **The Layering Principle:** Depth is achieved by "stacking" surface-container tiers. A card (lowest tier) sits on a section (low tier) which sits on the background (base).
-- **Ambient Shadows:** When a float is required (e.g., a calendar popover), use an extra-diffused shadow: `box-shadow: 0 12px 40px rgba(11, 37, 69, 0.05)`. The shadow uses a Navy tint, not grey, to feel integrated into the environment.
-- **The "Ghost Border" Fallback:** If a border is required for accessibility in forms, use the `outline_variant` token at **15% opacity**. Never use 100% opaque lines.
+- **Display & Headlines (Noto Serif):** Used for large-scale editorial moments. High contrast in size conveys authority and luxury. `display-lg` should be used sparingly for impactful poetic statements or section headers.
+- **Titles & Labels (Manrope):** A clean, geometric sans-serif used for structure and navigation. It provides a functional counter-weight to the serif, ensuring the design feels "modern Syariah" rather than purely traditional.
+- **Hierarchy of Trust:** Large serif headers establish the "Dream" (aspiration), while clear, well-spaced Manrope body text establishes the "Organizer" (reliability).
+
+---
+
+## 4. Elevation & Depth
+We define hierarchy through **Tonal Layering** and **Ambient Light**, not structural scaffolding.
+
+- **The Layering Principle:** Avoid shadows where background shifts can suffice. Place a `surface-container-lowest` card on a `surface-container-low` background to create a soft, natural lift.
+- **Ambient Shadows:** When a "floating" element (like a primary modal) is required, use extra-diffused shadows:
+  - Blur: 30px - 60px
+  - Opacity: 4% - 8%
+  - Tint: Use a navy-tinted version of `on-surface` rather than pure black to keep the shadow feeling like a natural reflection of the room.
+- **The "Ghost Border":** If a container requires a border (e.g., input fields), use the `outline_variant` token at **15% opacity**. A 100% opaque border is too aggressive for this aesthetic.
+- **Gold Accents:** The gold (`secondary`) should be used for thin, "metallic" lines in decorative contexts only—never for structural containment.
 
 ---
 
 ## 5. Components
 
 ### Buttons
-- **Primary:** High-contrast `primary` background with `on_primary` text. Uses `xl` (0.75rem) roundedness for a soft but professional feel.
-- **Secondary:** `secondary_container` background. No border.
-- **Tertiary:** Text-only using the `primary` color token, with a `surface-container-high` background shift on hover.
+- **Primary:** Gradient fill (`primary` to `primary_container`), white text, `xl` (0.75rem) corner radius. No border.
+- **Secondary:** Transparent background with a `secondary` (Gold) "Ghost Border" (20% opacity) and `on_secondary_container` text.
+- **Tertiary:** Text only in `secondary`, all-caps with generous letter spacing (0.1rem).
 
-### Data Tables (The "Ghost" Table)
-- **Rule:** Forbid all vertical and horizontal divider lines.
-- **Structure:** Use `body-md` for row text. Header row should be `surface-container-low` with `label-md` uppercase text. 
-- **Separation:** Rows are separated by `16px` of vertical whitespace. Hover states should trigger a `surface-container-lowest` background shift with an `xl` corner radius.
+### Cards & Lists
+- **Rule:** Forbid divider lines.
+- **Structure:** Use vertical whitespace (spacing scale) to separate list items. For cards, use the `surface-container-lowest` fill to distinguish them from the base `surface`.
+- **Editorial Card:** Large image-top cards should have an asymmetric text overlay, slightly bleeding out of the container bounds for a custom feel.
 
-### Calendars & Scheduling
-- **Styling:** Use `surface-container-lowest` for the calendar grid. 
-- **Selected State:** Use the Soft Teal (`secondary_fixed`) to highlight dates, ensuring a calm, non-aggressive selection.
-- **Indicator:** Use a tiny `primary` dot for "Event Scheduled" markers, maintaining a clean, minimal look.
+### Input Fields
+- **Style:** Underline only or "Ghost Border." Focus state should transition the bottom border to `secondary` (Gold) and introduce a subtle `secondary_container` glow.
 
-### Status Badges
-- **Style:** Pill-shaped (`full` roundedness). 
-- **Colors:** Instead of harsh red/green, use the container tokens. 
-  - *Confirmed:* `secondary_container` (#cae9e4) text on `on_secondary_container` background.
-  - *Pending:* `tertiary_fixed` (#e7e2d3) background.
-- **Note:** Badges should never have borders.
-
-### Professional Forms
-- **Input Fields:** Use `surface-container-low` as the field background. 
-- **Focus State:** Transitions to `surface-container-lowest` with a 1px `primary` "Ghost Border" (20% opacity).
-- **Labels:** Use `label-md` in `on_surface_variant`. Place labels above the field with a 4px gap.
+### Signature Component: The "Gilded Frame"
+- For featured wedding galleries or testimonials, use a `surface-container-highest` background with a very thin (0.5px) `secondary` gold border and 40px internal padding to frame the content like a piece of art.
 
 ---
 
 ## 6. Do's and Don'ts
 
 ### Do
-- **Do** use whitespace as a functional tool. If elements feel crowded, increase the margin rather than adding a line.
-- **Do** use the `notoSerif` for numbers in data summaries to make them feel like "achievements" rather than just "data."
-- **Do** utilize the `secondary` (Soft Teal) for success states to keep the palette harmonious with the Syariah theme.
+- **Use Intentional Asymmetry:** Offset images and text blocks to create a high-end editorial rhythm.
+- **Embrace Whitespace:** Allow at least 80px-120px of vertical space between major sections.
+- **Prioritize Legibility:** Ensure `body-md` has at least a 1.5 line-height for readability.
 
 ### Don't
-- **Don't** use pure black (#000000) for text. Always use `on_surface` (#1b1b1e) to maintain a premium, softer contrast.
-- **Don't** use standard `md` (0.375rem) rounding for large containers. Use `xl` (0.75rem) to lean into the "Soft Minimalism" aesthetic.
-- **Don't** allow "Stark Grids." Break the grid occasionally by indenting specific content blocks to create an editorial, high-end feel.
+- **Don't use pure black:** Use `primary` (#000613) for the darkest elements to maintain color depth.
+- **Don't use standard shadows:** Never use default `0, 4, 8, 0` shadows; they look "cheap" and "templated."
+- **Don't crowd the Gold:** Gold is an accent. If it covers more than 10% of the screen, the "premium" feel is lost and it becomes gaudy.
+- **Don't use 1px solid borders:** Re-read the "No-Line" Rule. If you find yourself drawing a line, ask if a color shift could do the job better.
