@@ -92,7 +92,23 @@ export default function LandingPage() {
         if (!res.ok) throw new Error('Failed to fetch packages');
         return res.json();
       })
-      .then((data) => setPackages(data))
+      .then((data) => {
+        // Handle both { data: [...] } and raw [...] array formats
+        const rawPackages = Array.isArray(data) ? data : data.data || [];
+        
+        if (rawPackages.length > 0) {
+          // Map backend fields (package_name, description) to frontend fields (name, features)
+          const mapped = rawPackages.map((pkg: any) => ({
+            id: pkg.id,
+            name: pkg.package_name || pkg.name || 'Unnamed Package',
+            sub_title: pkg.sub_title || (pkg.package_name?.toLowerCase().includes('bronze') ? 'Intimate Sanctuary' : pkg.package_name?.toLowerCase().includes('gold') ? 'Grand Celebration' : 'Elegant Gathering'),
+            icon: pkg.icon || (pkg.package_name?.toLowerCase().includes('bronze') ? 'stars' : pkg.package_name?.toLowerCase().includes('gold') ? 'diamond' : 'workspace_premium'),
+            features: pkg.features || (pkg.description ? pkg.description.split('.').map((s: string) => s.trim()).filter((s: string) => s.length > 0) : []),
+            is_popular: pkg.is_popular !== undefined ? pkg.is_popular : pkg.package_name?.toLowerCase().includes('gold')
+          }));
+          setPackages(mapped);
+        }
+      })
       .catch((err) => console.warn('Could not load packages from server, using fallback:', err));
 
     // Fetch portfolio
