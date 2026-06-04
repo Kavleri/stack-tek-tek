@@ -84,6 +84,7 @@ jspm_packages/
 
 # Local editor workspace settings
 .vscode/
+GEMINI.md
 
 # Postman local workspace folders
 .postman/
