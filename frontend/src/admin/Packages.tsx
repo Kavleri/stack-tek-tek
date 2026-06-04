@@ -7,7 +7,7 @@ export default function Packages() {
       <main className="flex-1 p-8 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-serif text-primary mb-4">Wedding Packages</h1>
-          <div className="inline-block px-4 py-2 bg-surface-container-low rounded-full border border-outline-variant/30">
+          <div className="inline-block px-4 py-2 bg-surface-container-low rounded-full">
             <p className="text-on-surface-variant font-sans tracking-wider uppercase text-[10px] font-bold">
               Canvas Kosong - Fitur Sedang Dikembangkan
             </p>
