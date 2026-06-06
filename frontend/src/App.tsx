@@ -2,15 +2,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'rea
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import LandingPage from './guest/LandingPage';
-import DigitalInvitation from './guest/DigitalInvitation';
 import Login from './admin/Login';
 import Dashboard from './admin/Dashboard';
 import Packages from './admin/Packages';
-import Clients from './admin/Clients';
 import Events from './admin/Events';
-import Bookings from './admin/Bookings';
 import Payments from './admin/Payments';
 import Guests from './admin/Guests';
+import Accounts from './admin/Accounts';
+import WorkOrderPrint from './admin/WorkOrderPrint';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { admin, loading } = useAuth();
@@ -268,14 +267,6 @@ function AppRoutes() {
         } 
       />
       <Route 
-        path="/admin/clients" 
-        element={
-          <ProtectedRoute>
-            <Clients />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
         path="/admin/events" 
         element={
           <ProtectedRoute>
@@ -284,10 +275,10 @@ function AppRoutes() {
         } 
       />
       <Route 
-        path="/admin/bookings" 
+        path="/admin/events/:id/work-order" 
         element={
           <ProtectedRoute>
-            <Bookings />
+            <WorkOrderPrint />
           </ProtectedRoute>
         } 
       />
@@ -304,6 +295,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Guests />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/accounts" 
+        element={
+          <ProtectedRoute>
+            <Accounts />
           </ProtectedRoute>
         } 
       />
