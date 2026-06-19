@@ -12,6 +12,7 @@
   "dependencies": {
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-qr-code": "^2.2.0",
     "react-router-dom": "^7.16.0",
     "rolldown": "^1.0.3"
   },
