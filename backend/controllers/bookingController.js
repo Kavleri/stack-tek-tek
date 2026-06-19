@@ -67,7 +67,41 @@ exports.createBooking = async (req, res, next) => {
 exports.getPackages = async (req, res, next) => {
     try {
         const [result] = await db.query("SELECT * FROM wedding_packages WHERE is_active = 1");
-        res.json(result);
+        const mappedResult = result.map(pkg => {
+            const name = pkg.package_name || '';
+            let features = [];
+            if (pkg.description) {
+                features = pkg.description.split(',').map(f => f.trim());
+            }
+            
+            let sub_title = 'Classic Union';
+            let icon = 'stars';
+            let is_popular = false;
+            
+            if (name.toLowerCase().includes('silver')) {
+                sub_title = 'Elegant Gathering';
+                icon = 'workspace_premium';
+            } else if (name.toLowerCase().includes('gold')) {
+                sub_title = 'Grand Celebration';
+                icon = 'diamond';
+                is_popular = true;
+            } else if (name.toLowerCase().includes('platinum') || name.toLowerCase().includes('luxury')) {
+                sub_title = 'Royal Majesty';
+                icon = 'workspace_premium';
+            }
+            
+            return {
+                id: pkg.id,
+                name: name,
+                sub_title: sub_title,
+                icon: icon,
+                price: Number(pkg.price),
+                description: pkg.description,
+                features: features,
+                is_popular: is_popular
+            };
+        });
+        res.json(mappedResult);
     } catch (err) {
         return next(err);
     }
