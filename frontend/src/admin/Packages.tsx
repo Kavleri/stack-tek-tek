@@ -15,7 +15,7 @@ export default function Packages() {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+  
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -218,10 +218,11 @@ export default function Packages() {
                         <span className="material-symbols-outlined text-secondary text-[24px]">stars</span>
                       </div>
                       <span
-                        className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isPkgActive
-                          ? 'bg-secondary-container text-on-secondary-container'
-                          : 'bg-surface-container-high text-on-surface-variant'
-                          }`}
+                        className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          isPkgActive
+                            ? 'bg-secondary-container text-on-secondary-container'
+                            : 'bg-surface-container-high text-on-surface-variant'
+                        }`}
                       >
                         {isPkgActive ? 'Aktif' : 'Nonaktif'}
                       </span>
@@ -263,7 +264,7 @@ export default function Packages() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4">
             <div className="bg-surface-container-lowest p-8 rounded-3xl shadow-ambient-lg border border-outline-variant/10 w-full max-w-lg max-h-[90vh] overflow-y-auto">
               <h2 className="text-2xl font-serif text-primary mb-6">Tambah Paket Pernikahan</h2>
-
+              
               <form onSubmit={handleAddSubmit} className="space-y-5">
                 {error && (
                   <div className="bg-error-container/30 text-on-error-container p-3 rounded-xl text-xs">
@@ -350,7 +351,7 @@ export default function Packages() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4">
             <div className="bg-surface-container-lowest p-8 rounded-3xl shadow-ambient-lg border border-outline-variant/10 w-full max-w-lg max-h-[90vh] overflow-y-auto">
               <h2 className="text-2xl font-serif text-primary mb-6">Edit Detail Paket Pernikahan</h2>
-
+              
               <form onSubmit={handleEditSubmit} className="space-y-5">
                 {error && (
                   <div className="bg-error-container/30 text-on-error-container p-3 rounded-xl text-xs">
