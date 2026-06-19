@@ -1,9 +1,11 @@
 const authValidator = {
   validateLogin: (req, res, next) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ message: 'Username dan password harus diisi.' });
+    const { username, email, password } = req.body;
+    const identifier = username || email;
+    if (!identifier || !password) {
+      return res.status(400).json({ message: 'Username atau Email dan password harus diisi.' });
     }
+    req.body.username = identifier;
     next();
   },
 
