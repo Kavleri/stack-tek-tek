@@ -6,16 +6,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-<<<<<<< HEAD
-const adminRoutes = require('../routes/adminRoutes');
-const bookingRoutes = require('../routes/event');
-const guestRoutes = require('../routes/guestRoutes');
-const weddingPackageRoutes = require('../routes/weddingPackageRoutes');
-const paymentRoutes = require('../routes/paymentRoutes');
-require('../config/database');
-=======
 dotenv.config();
->>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -31,16 +22,10 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173', crede
 app.use(express.json());
 app.use(morgan('dev'));
 
-<<<<<<< HEAD
-app.use('/api/admins', adminRoutes);
-app.use('/api', bookingRoutes);
-app.use('/api/guests', guestRoutes);
-app.use('/api/wedding-packages', weddingPackageRoutes);
-app.use('/api/payments', paymentRoutes);
-=======
 if (USE_DATABASE) {
   // ==================== REAL DATABASE INTEGRATION ====================
   console.log('📡 Berjalan dalam mode DATABASE (MySQL)');
+  require('../config/database');
   
   // Import Routes
   const adminRoutes = require('../routes/adminRoutes');
@@ -48,7 +33,6 @@ if (USE_DATABASE) {
   const eventRoutes = require('../routes/event');
   const guestRoutes = require('../routes/guestRoutes');
   const paymentRoutes = require('../routes/paymentRoutes');
->>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
 
   // Gunakan Routes
   app.use('/api/admins', adminRoutes);
