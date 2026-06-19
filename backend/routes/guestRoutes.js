@@ -1,5 +1,16 @@
 const express = require('express');
 const guestController = require('../controllers/guestController');
+<<<<<<< HEAD
+
+const router = express.Router();
+
+router.get('/', guestController.index);
+router.get('/event/:eventId', guestController.byEvent);
+router.get('/:id', guestController.show);
+router.post('/', guestController.store);
+router.put('/:id', guestController.update);
+router.delete('/:id', guestController.destroy);
+=======
 const { authenticateToken } = require('../middlewares/authMiddleware');
 const { authorizeRoles } = require('../middlewares/authorizeMiddleware');
 const guestValidator = require('../utils/guestValidator');
@@ -17,5 +28,6 @@ router.put('/:id', guestValidator.validateGuestId, guestValidator.validateUpdate
 router.delete('/:id', guestValidator.validateGuestId, guestController.destroy);
 
 router.use(guestErrorHandler);
+>>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
 
 module.exports = router;
