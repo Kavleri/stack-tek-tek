@@ -6,8 +6,8 @@ const navItems = [
   { name: 'Wedding Packages', path: '/admin/packages', icon: 'inventory_2' },
   { name: 'Events & Scheduling', path: '/admin/events', icon: 'event' },
   { name: 'Payments & Invoice', path: '/admin/payments', icon: 'payments' },
-  { name: 'Guest Book', path: '/admin/guests', icon: 'book_online' },
-  { name: 'Admin Accounts', path: '/admin/clients', icon: 'admin_panel_settings' },
+  { name: 'Guest Book', path: '/admin/guests', icon: 'people' },
+  { name: 'Admin Accounts', path: '/admin/accounts', icon: 'manage_accounts' },
 ];
 
 export default function Sidebar() {
@@ -15,60 +15,54 @@ export default function Sidebar() {
   const { admin, logout } = useAuth();
 
   return (
-    <div className="w-64 bg-primary-container min-h-screen text-slate-300 p-4.5 flex flex-col shadow-2xl relative z-10">
-      {/* Brand Logo */}
-      <div className="flex items-center gap-3.5 mb-10 p-2">
-        <div className="w-10 h-10 bg-gradient-to-br from-secondary-fixed to-secondary-fixed-dim rounded-2xl flex items-center justify-center shadow-lg shadow-black/10">
+    <div className="w-64 bg-gradient-to-b from-primary to-primary-container text-surface-container-highest p-5 flex flex-col min-h-screen relative shadow-sidebar">
+      {/* Editorial Header */}
+      <div className="flex items-center gap-3 mb-10 p-2">
+        <div className="w-10 h-10 bg-gradient-gold rounded-full flex items-center justify-center shadow-ambient-sm">
           <span className="text-primary font-serif font-semibold text-lg">DS</span>
         </div>
         <div>
-          <h2 className="text-white font-serif text-lg leading-tight font-semibold tracking-wide">Dream Syariah</h2>
-          <p className="text-[10px] text-secondary-fixed-dim uppercase tracking-[0.24em] font-semibold mt-0.5">WEDDING ORGANIZER</p>
+          <h2 className="text-white font-serif text-lg tracking-wide leading-tight">Dream Syariah</h2>
+          <p className="text-[10px] uppercase tracking-widest text-secondary">Wedding Organizer</p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1.5">
+      <nav className="flex-1 space-y-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${
-                isActive
-                  ? 'bg-secondary-fixed text-primary font-semibold shadow-md shadow-black/10'
-                  : 'hover:bg-white/5 hover:text-white'
-              }`}
+              className={`flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 font-sans ${isActive
+                ? 'bg-white/10 text-white font-semibold'
+                : 'hover:bg-white/5 hover:text-white text-white/50'
+                }`}
             >
-              <span className={`material-symbols-outlined text-[22px] transition-transform duration-300 ${
-                isActive ? 'text-primary' : 'text-slate-400 group-hover:text-white group-hover:scale-110'
-              }`}>
+              <span className={`material-symbols-outlined text-[22px] transition-transform ${isActive ? 'text-secondary scale-110' : 'text-white/40'
+                }`}>
                 {item.icon}
               </span>
-              <span className="text-[14px] tracking-wide">{item.name}</span>
+              <span className="text-sm tracking-wide">{item.name}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Admin Profile & Logout */}
-      <div className="border-t border-white/10 pt-5 mt-5">
-        <div className="px-4 py-2 mb-3 bg-white/5 rounded-2xl flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-tertiary-fixed text-primary font-semibold font-serif text-sm flex items-center justify-center">
-            {admin?.name?.substring(0, 1).toUpperCase() || 'A'}
-          </div>
-          <div className="overflow-hidden">
-            <p className="text-sm font-medium text-white truncate">{admin?.name || 'Administrator'}</p>
-            <p className="text-xs text-slate-400 truncate">{admin?.email || 'admin@dreamsyariah.id'}</p>
-          </div>
+      {/* Profile & Logout Section (No 1px line, using background shifts) */}
+      <div className="bg-white/5 p-4 rounded-2xl mt-6 space-y-3">
+        <div className="px-1">
+          <p className="text-xs uppercase tracking-widest text-white/40 font-semibold">Current User</p>
+          <p className="text-sm font-serif text-white mt-1 font-medium truncate">{admin?.full_name}</p>
+          <p className="text-[11px] text-secondary font-sans truncate mt-0.5">{admin?.username}</p>
         </div>
         <button
           onClick={logout}
-          className="flex items-center gap-3.5 px-4.5 py-3 w-full rounded-2xl hover:bg-red-500/10 hover:text-red-400 text-slate-400 transition-all duration-300 font-medium"
+          className="flex items-center justify-center gap-2 px-4 py-2.5 w-full rounded-xl bg-surface-container-lowest text-primary text-xs font-semibold hover:bg-secondary-container hover:text-on-secondary-container transition-all duration-300 shadow-ambient-sm"
         >
-          <span className="material-symbols-outlined text-[22px]">logout</span>
-          <span className="text-[14px] tracking-wide">Logout</span>
+          <span className="material-symbols-outlined text-sm">logout</span>
+          Logout Session
         </button>
       </div>
     </div>
