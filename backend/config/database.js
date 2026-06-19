@@ -11,13 +11,21 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
-pool.getConnection((err, connection) => {
-  if (err) {
-    console.error('❌ Koneksi database gagal:', err.message);
-  } else {
+async function testDatabaseConnection() {
+  try {
+    const connection = await pool.getConnection();
     console.log('✅ Koneksi database berhasil');
     connection.release();
+  } catch (err) {
+    console.error('❌ Koneksi database gagal:');
+    console.error(err && err.stack ? err.stack : err);
+    if (err && err.code) {
+      console.error('Kode error DB:', err.code);
+    }
+    console.error('Pastikan service MySQL/MariaDB berjalan dan kredensial di file .env benar.');
   }
-});
+}
+
+testDatabaseConnection();
 
 module.exports = pool;

@@ -9,7 +9,7 @@ function generateInvoice() {
     return `INV/${y}${m}${d}/${rand}`;
 }
 
-exports.createBooking = async (req, res) => {
+exports.createBooking = async (req, res, next) => {
     const {
         client_name,
         client_phone,
@@ -19,11 +19,7 @@ exports.createBooking = async (req, res) => {
         location_address,
         google_maps_link,
         package_id
-    } = req.body;
-
-    if (!client_name || !client_phone || !event_date || !event_time) {
-        return res.json({ message: "Data belum lengkap!" });
-    }
+    } = req.validatedBooking;
 
     const checkQuery = `
         SELECT COUNT(*) as total 
@@ -36,9 +32,7 @@ exports.createBooking = async (req, res) => {
         const [result] = await db.query(checkQuery, [event_date]);
 
         if (result[0].total > 0) {
-            return res.json({
-                message: "Tanggal sudah dibooking!"
-            });
+            return next({ type: "BOOKING_DATE_CONFLICT" });
         }
 
         const invoice = generateInvoice();
@@ -61,20 +55,64 @@ exports.createBooking = async (req, res) => {
             package_id
         ]);
 
-        res.json({
+        res.status(201).json({
             message: "Booking berhasil!",
             invoice
         });
     } catch (err) {
-        return res.status(500).json(err);
+        return next(err);
     }
 };
 
-exports.getPackages = async (req, res) => {
+exports.getPackages = async (req, res, next) => {
     try {
         const [result] = await db.query("SELECT * FROM wedding_packages WHERE is_active = 1");
-        res.json(result);
+        const mappedResult = result.map(pkg => {
+            const name = pkg.package_name || '';
+            let features = [];
+            if (pkg.description) {
+                features = pkg.description.split(',').map(f => f.trim());
+            }
+            
+            let sub_title = 'Classic Union';
+            let icon = 'stars';
+            let is_popular = false;
+            
+            if (name.toLowerCase().includes('silver')) {
+                sub_title = 'Elegant Gathering';
+                icon = 'workspace_premium';
+            } else if (name.toLowerCase().includes('gold')) {
+                sub_title = 'Grand Celebration';
+                icon = 'diamond';
+                is_popular = true;
+            } else if (name.toLowerCase().includes('platinum') || name.toLowerCase().includes('luxury')) {
+                sub_title = 'Royal Majesty';
+                icon = 'workspace_premium';
+            }
+            
+            return {
+                id: pkg.id,
+                name: name,
+                sub_title: sub_title,
+                icon: icon,
+                price: Number(pkg.price),
+                description: pkg.description,
+                features: features,
+                is_popular: is_popular
+            };
+        });
+        res.json(mappedResult);
     } catch (err) {
-        return res.status(500).json(err);
+        return next(err);
+    }
+};
+
+// Return all bookings (events table)
+exports.getBookings = async (req, res, next) => {
+    try {
+        const [rows] = await db.query("SELECT * FROM events");
+        res.json(rows);
+    } catch (err) {
+        return next(err);
     }
 };

@@ -1,43 +1,43 @@
-﻿-- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
---
--- Host: localhost    Database: wedding_organizer
--- ------------------------------------------------------
--- Server version	10.4.32-MariaDB
+-- Insert Dummy Data for MySQL
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+-- Insert Admin (password: admin123)
+INSERT IGNORE INTO admins (name, email, password, phone) 
+VALUES 
+('Admin Utama', 'admin@dreamwo.com', '$2b$10$giU4.CmTRGccdt0fdceXpeIE0uNhYatg35zC6fgbhO.b.IQQ3X.u2', '08123456789');
 
---
--- Dumping data for table `admins`
---
+-- Insert Packages
+INSERT IGNORE INTO packages (name, sub_title, category, icon, description, price, features, is_popular)
+VALUES
+('Bronze Package', 'Intimate Sanctuary', 'Full', 'stars', 'Paket pernikahan intim untuk 200 tamu', 15000000, '["Up to 200 Guests", "Syariah Catering Basic", "Standard Decor Theme", "Documentation (1 Photographer)"]', FALSE),
+('Gold Package', 'Grand Celebration', 'Full', 'diamond', 'Paket pernikahan mewah untuk 1000 tamu', 50000000, '["Up to 1000 Guests", "Premium Syariah Buffet", "Full Custom Decor & Floral", "Live Cinematic Documentation"]', TRUE),
+('Silver Package', 'Elegant Gathering', 'Full', 'workspace_premium', 'Paket pernikahan elegan untuk 500 tamu', 30000000, '["Up to 500 Guests", "Deluxe Syariah Buffet", "Semi-Custom Decor", "Photo & Video Coverage"]', FALSE);
 
-LOCK TABLES `admins` WRITE;
-/*!40000 ALTER TABLE `admins` DISABLE KEYS */;
-INSERT INTO `admins` VALUES (1,'owner_utama','$2b$10$HUGukUlGnGuUB02L5w7RoeYa6QHo9VABPIX7YDZbxj/2o6sGMKA6C','Budi Santoso','owner','2026-04-09 12:10:16','2026-04-11 04:16:09'),(2,'admin_event1','password','Siti Aminah','admin','2026-04-09 12:10:16','2026-04-09 12:10:16'),(3,'admin_event2','password','Rina Wijaya','admin','2026-04-09 12:10:16','2026-04-09 12:10:16');
-/*!40000 ALTER TABLE `admins` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Insert Portfolio
+INSERT IGNORE INTO portfolio (title, category, image_path)
+VALUES
+('Al-Husna Grand Wedding', 'The Royal Ballroom', '/images/portfolio-ballroom.jpg'),
+('Culinary Excellence', 'Halal Catering', '/images/portfolio-catering.jpg'),
+('Outdoor Serenity', 'Garden Wedding', '/images/portfolio-outdoor.jpg');
 
---
--- Dumping data for table `events`
---
+-- Insert Vendors
+INSERT IGNORE INTO vendors (name, category, icon)
+VALUES
+('Luxe Halal Catering', 'Catering', 'restaurant'),
+('Bloom Syariah Floral', 'Floral', 'local_florist'),
+('Modest Moments Studio', 'Documentation', 'camera_enhance'),
+('Elegance Bridal Wear', 'Attire', 'styler');
 
-LOCK TABLES `events` WRITE;
-/*!40000 ALTER TABLE `events` DISABLE KEYS */;
-INSERT INTO `events` VALUES (1,'INV/20260408/0001','Andi & Rina','081234567890','2026-06-15','09:00:00','Gedung Serbaguna Depok','Jl. Margonda Raya No. 10, Depok',NULL,2,'confirmed','Tim lapangan standby jam 05:00. Katering minta tambahan pondokan sate.','2026-04-09 12:10:16'),(2,'INV/20260408/0002','Budi & Sari','085678901234','2026-07-20','11:00:00','Hotel Bumi Wiyata','Jl. Margonda Raya No. 281, Depok',NULL,3,'pending','Belum ada catatan khusus, menunggu konfirmasi layout pelaminan.','2026-04-09 12:10:16'),(3,'INV/20260408/0003','Citra & Doni','081122334455','2026-05-10','19:00:00','Rumah Klien','Jl. Sawangan No. 5, Depok',NULL,1,'completed','Acara selesai. Semua aset dekorasi sudah ditarik kembali ke gudang agensi.','2026-04-09 12:10:16'),(4,'INV/20260408/0004','Eko & Maya','089988776655','2026-08-05','08:00:00','Masjid Kubah Emas','Jl. Raya Meruyung, Limo',NULL,2,'confirmed','Akad nikah di masjid, resepsi di aula samping. Koordinasi ketat dengan keamanan setempat.','2026-04-09 12:10:16'),(5,'INV/20260408/0005','Fajar & Gita','082233445566','2026-09-12','10:00:00','Aula UI Depok','Kampus UI, Beji, Depok',NULL,3,'cancelled','Pembatalan oleh klien. Tidak perlu ada distribusi logistik ke lapangan.','2026-04-09 12:10:16');
-/*!40000 ALTER TABLE `events` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Insert Dummy Client
+INSERT IGNORE INTO clients (name, phone, email, address) 
+VALUES 
+('Kavleri', '08123456789', 'kavleri@example.com', 'Jl. Contoh No. 123, Jakarta');
 
---
--- Dumping data for table `guests`
---
+-- Insert Dummy Event
+INSERT IGNORE INTO events (client_id, groom_name, bride_name, event_date, location, theme, status)
+VALUES 
+(1, 'Andi', 'Maya', '2026-06-15', 'Masjid Al-Husna Grand Ballroom', 'Modern Syariah', 'Confirmed');
 
+<<<<<<< HEAD
 LOCK TABLES `guests` WRITE;
 /*!40000 ALTER TABLE `guests` DISABLE KEYS */;
 INSERT INTO `guests` VALUES (1,1,'Andi Pratama','081234567890','andi-pratama',0,'2026-04-13 08:00:00'),(2,2,'Siti Rahma','081298765432','siti-rahma',1,'2026-04-13 08:05:00');
@@ -73,4 +73,14 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-04-13 13:10:17
+=======
+-- Insert Dummy Booking
+INSERT IGNORE INTO bookings (client_id, event_id, package_id, total_amount, status)
+VALUES 
+(1, 1, 2, 50000000, 'Confirmed');
+>>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
 
+-- Insert Dummy Guest with invitation token
+INSERT IGNORE INTO guests (event_id, name, phone, email, status, invitation_token)
+VALUES 
+(1, 'Budi Santoso', '08987654321', 'budi@example.com', 'Pending', 'test-token-123');

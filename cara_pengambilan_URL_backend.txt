@@ -1,0 +1,49 @@
+Cara Mengambil URL Backend (cara_pengambilan_URL_backend.txt)
+
+1) Cek log saat server dijalankan
+- Jalankan backend: `cd backend` lalu `npm run dev` atau `node src/index.js`.
+- Di terminal akan tampil baris seperti: "Menjalankan Backend di http://localhost:5000".
+- Itu adalah Base URL (host:port) yang digunakan untuk membentuk endpoint.
+
+2) Periksa file bootstrap aplikasi
+- Buka file `backend/src/index.js`.
+- Cari `app.listen(...)` untuk port dan `app.use('/prefix', ...)` untuk mount prefix.
+- Contoh: jika `app.use('/api', ...)` dan port 5000 → base + "/api" = `http://localhost:5000/api`.
+
+3) Lihat definisi route yang relevan
+- Buka folder `backend/routes/` dan cari file rute (mis. `event.js`, `adminRoutes.js`).
+- Di dalam file route akan ada path, contohnya `router.post('/booking', ...)`.
+- Gabungkan: BaseURL + mount prefix + route path → `http://localhost:5000/api/booking`.
+
+4) Periksa environment dan scripts
+- Cek file `.env` (atau `.env.example`) untuk variabel `PORT` atau host yang digunakan.
+- Periksa `backend/package.json` pada `scripts` (kadang port ditetapkan di sana).
+
+5) Periksa konfigurasi frontend/proxy
+- Jika frontend menggunakan proxy atau base API, lihat `frontend/vite.config.ts` atau file konfigurasi environment di frontend.
+- Frontend mungkin mengoverride base URL saat development atau production.
+
+6) Verifikasi cepat (smoke test)
+- Gunakan curl/Postman untuk cek endpoint yang pasti ada:
+  - `GET http://localhost:5000/api/status` (harusnya mengembalikan JSON status)
+  - `GET http://localhost:5000/api/bookings` (contoh endpoint booking yang ada di repo)
+
+7) Kalau mendapati 401 atau akses ditolak
+- Pastikan Anda memakai endpoint login untuk mendapatkan token: `POST /api/admins/login` (ambil token dari response).
+- Sertakan header: `Authorization: Bearer <TOKEN>` pada request ke endpoint yang dilindungi.
+- Pastikan `process.env.JWT_SECRET` sama antara environment yang membuat token dan yang memverifikasinya.
+
+8) Cara cepat cek port yang sedang dipakai (Windows PowerShell)
+- `netstat -ano | findstr ":5000"`
+- `Get-Process -Id (Get-NetTCPConnection -LocalPort 5000).OwningProcess`
+
+9) Untuk aplikasi yang dideploy
+- Ambil URL dari provider deploy (Heroku/Azure/GCP/Vercel) atau dari konfigurasi CI/CD.
+- Periksa environment variables di dashboard deploy untuk `PORT`/`HOST`.
+
+10) Tips ringkas untuk debugging
+- Jika endpoint tidak ditemukan (404) → periksa mount prefix dan path pada file route.
+- Jika response 500 → lihat log server untuk stack trace.
+- Jika DB-related errors → pastikan database sudah ter-import (database/schema.sql atau database/dummy_data.sql) dan service DB berjalan.
+
+Butuh saya buatkan versi singkat untuk readme atau Postman collection otomatis juga?

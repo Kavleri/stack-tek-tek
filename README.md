@@ -46,9 +46,12 @@ wedding-system/
 ## Anggota Kelompok
 - Muhammad Jibril Ibrahim
 - Nurul Hayatu Suhaila
-- Muhammad Hisyam
+- Muhammad Hisyam Alfaris
 - Anis Adriani
 - Eka Vitaloka
+
+## link Sprint
+- [Sprint Report Fullstack Team stack-tek-tek](https://docs.google.com/spreadsheets/d/1MJ906FOq9rncPM8r5CBfWgvsvadBHi_s/edit?usp=sharing&ouid=104536910473143147355&rtpof=true&sd=true)
 
 ## Cara Clone
 ```bash

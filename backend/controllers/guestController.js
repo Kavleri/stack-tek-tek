@@ -1,5 +1,6 @@
 const guestModel = require('../models/guestModel');
 
+<<<<<<< HEAD
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.trim() !== '';
 }
@@ -55,6 +56,9 @@ function validatePayload(payload, requireAllFields = true) {
 }
 
 async function index(req, res) {
+=======
+async function index(req, res, next) {
+>>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
   try {
     const guests = await guestModel.findAll();
 
@@ -63,6 +67,7 @@ async function index(req, res) {
       data: guests,
     });
   } catch (error) {
+<<<<<<< HEAD
     return res.status(500).json({
       message: 'Gagal ambil data tamu',
       error: error.message,
@@ -77,6 +82,23 @@ async function show(req, res) {
 
     if (!guest) {
       return res.status(404).json({ message: 'Tamu tidak ditemukan' });
+=======
+    return next(error);
+  }
+}
+
+async function show(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    if (Number.isNaN(Number(id))) {
+      return res.status(400).json({ message: 'id harus berupa angka' });
+    }
+    const guest = await guestModel.findById(id);
+
+    if (!guest) {
+      return next({ type: 'GUEST_NOT_FOUND' });
+>>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
     }
 
     return res.json({
@@ -84,6 +106,7 @@ async function show(req, res) {
       data: guest,
     });
   } catch (error) {
+<<<<<<< HEAD
     return res.status(500).json({
       message: 'Gagal ambil detail tamu',
       error: error.message,
@@ -99,6 +122,15 @@ async function byEvent(req, res) {
       return res.status(400).json({ message: 'eventId harus berupa angka' });
     }
 
+=======
+    return next(error);
+  }
+}
+
+async function byEvent(req, res, next) {
+  try {
+    const { eventId } = req.params;
+>>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
     const guests = await guestModel.findByEventId(eventId);
 
     return res.json({
@@ -106,6 +138,7 @@ async function byEvent(req, res) {
       data: guests,
     });
   } catch (error) {
+<<<<<<< HEAD
     return res.status(500).json({
       message: 'Gagal ambil data tamu berdasarkan event',
       error: error.message,
@@ -125,6 +158,15 @@ async function store(req, res) {
     if (validationError) {
       return res.status(400).json({ message: validationError });
     }
+=======
+    return next(error);
+  }
+}
+
+async function store(req, res, next) {
+  try {
+    const payload = req.validatedGuest;
+>>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
 
     const created = await guestModel.create(payload);
 
@@ -133,6 +175,7 @@ async function store(req, res) {
       data: created,
     });
   } catch (error) {
+<<<<<<< HEAD
     return res.status(500).json({
       message: 'Gagal tambah tamu',
       error: error.message,
@@ -156,11 +199,25 @@ async function update(req, res) {
     if (validationError) {
       return res.status(400).json({ message: validationError });
     }
+=======
+    return next(error);
+  }
+}
+
+async function update(req, res, next) {
+  try {
+    const { id } = req.params;
+    const payload = req.validatedGuest;
+>>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
 
     const updated = await guestModel.update(id, payload);
 
     if (!updated) {
+<<<<<<< HEAD
       return res.status(404).json({ message: 'Tamu tidak ditemukan' });
+=======
+      return next({ type: 'GUEST_NOT_FOUND' });
+>>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
     }
 
     return res.json({
@@ -168,6 +225,7 @@ async function update(req, res) {
       data: updated,
     });
   } catch (error) {
+<<<<<<< HEAD
     return res.status(500).json({
       message: 'Gagal update tamu',
       error: error.message,
@@ -182,16 +240,37 @@ async function destroy(req, res) {
 
     if (!deleted) {
       return res.status(404).json({ message: 'Tamu tidak ditemukan' });
+=======
+    return next(error);
+  }
+}
+
+async function destroy(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    if (Number.isNaN(Number(id))) {
+      return res.status(400).json({ message: 'id harus berupa angka' });
+    }
+    const deleted = await guestModel.remove(id);
+
+    if (!deleted) {
+      return next({ type: 'GUEST_NOT_FOUND' });
+>>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
     }
 
     return res.json({
       message: 'Berhasil hapus tamu',
     });
   } catch (error) {
+<<<<<<< HEAD
     return res.status(500).json({
       message: 'Gagal hapus tamu',
       error: error.message,
     });
+=======
+    return next(error);
+>>>>>>> e206de95c34cb82afbcf946fc1c0c8aa75d013a2
   }
 }
 
