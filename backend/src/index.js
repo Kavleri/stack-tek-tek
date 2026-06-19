@@ -41,6 +41,7 @@ app.use('/api/payments', paymentRoutes);
 if (USE_DATABASE) {
   // ==================== REAL DATABASE INTEGRATION ====================
   console.log('📡 Berjalan dalam mode DATABASE (MySQL)');
+  require('../config/database');
   
   // Import Routes
   const adminRoutes = require('../routes/adminRoutes');
