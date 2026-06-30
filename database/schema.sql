@@ -93,45 +93,12 @@ CREATE TABLE IF NOT EXISTS payments (
   booking_id INT,
   amount DECIMAL(15, 2) NOT NULL,
   payment_method VARCHAR(50),
-  payment_type VARCHAR(50) NOT NULL DEFAULT 'Full Payment', -- Full Payment, Down Payment, Installment
-  payment_date DATE NOT NULL,
-  status VARCHAR(50) DEFAULT 'Pending', -- Pending, Completed, Failed
+  payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  status VARCHAR(50) DEFAULT 'Pending',
   invoice_number VARCHAR(100) UNIQUE,
-  notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
-);
-
--- Installment Plans Table
-CREATE TABLE IF NOT EXISTS installment_plans (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  booking_id INT NOT NULL,
-  total_installments INT NOT NULL, -- Jumlah cicilan
-  installment_amount DECIMAL(15, 2) NOT NULL, -- Jumlah per cicilan
-  paid_installments INT DEFAULT 0, -- Cicilan yang sudah dibayar
-  next_due_date DATE, -- Tanggal jatuh tempo cicilan berikutnya
-  status VARCHAR(50) DEFAULT 'Active', -- Active, Completed, Overdue
-  notes TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
-);
-
--- Installment Schedules Table (tracking per cicilan)
-CREATE TABLE IF NOT EXISTS installment_schedules (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  installment_plan_id INT NOT NULL,
-  installment_number INT NOT NULL, -- Nomor cicilan (1, 2, 3, dst)
-  due_date DATE NOT NULL,
-  amount DECIMAL(15, 2) NOT NULL,
-  paid_amount DECIMAL(15, 2) DEFAULT 0,
-  status VARCHAR(50) DEFAULT 'Pending', -- Pending, Paid, Overdue, Failed
-  payment_date DATE,
-  notes TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (installment_plan_id) REFERENCES installment_plans(id) ON DELETE CASCADE
 );
 
 -- Guests Table

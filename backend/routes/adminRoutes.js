@@ -10,28 +10,6 @@ const authErrorHandler = require('../utils/authErrorHandler');
 router.post('/login', authValidator.validateLogin, authController.login);
 
 router.use(authenticateToken);
-
-router.get('/me', (req, res) => {
-  res.json({
-    admin: {
-      id: req.user.id,
-      username: req.user.username,
-      fullName: req.user.fullName,
-      role: req.user.role,
-      name: req.user.fullName,
-      email: req.user.username
-    },
-    user: {
-      id: req.user.id,
-      username: req.user.username,
-      fullName: req.user.fullName,
-      role: req.user.role,
-      name: req.user.fullName,
-      email: req.user.username
-    }
-  });
-});
-
 router.use(authorizeRoles('admin'));
 
 router.get('/', authController.getAdmins);
