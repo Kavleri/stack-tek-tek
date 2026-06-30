@@ -61,6 +61,101 @@ if (USE_DATABASE) {
       .replace(/\-\-+/g, '-');
   };
 
+  let installmentPayments = [];
+
+  const mapPaymentForFrontend = (payment) => {
+    const event = events.find((e) => e.id === payment.event_id);
+    const pkg = event ? packages.find((p) => p.id === event.package_id) : null;
+    const normalizedType = payment.payment_type === 'final_payment'
+      ? 'Full Payment'
+      : payment.payment_type === 'down_payment'
+        ? 'Down Payment'
+        : 'Installment';
+
+    const normalizedStatus = payment.payment_type === 'final_payment' ? 'Completed' : 'Pending';
+
+    return {
+      ...payment,
+      amount: Number(payment.payment_amount),
+      booking_id: event ? event.id : payment.event_id,
+      payment_method: payment.payment_method || 'Transfer',
+      payment_type: normalizedType,
+      status: normalizedStatus,
+      invoice_number: event ? event.invoice_number : 'N/A',
+      notes: payment.receipt_note || '',
+      client_name: event ? event.client_name : 'Unknown',
+      client_phone: event ? event.client_phone : '',
+      groom_name: event ? event.client_name : '',
+      bride_name: '',
+      event_date: event ? event.event_date : '',
+      package_price: pkg ? pkg.price : 0
+    };
+  };
+
+  const buildInstallmentPlans = () => {
+    return events
+      .filter((event) => event.package_id)
+      .map((event) => {
+        const pkg = packages.find((p) => p.id === event.package_id);
+        const totalInstallments = pkg?.price >= 50000000 ? 4 : pkg?.price >= 30000000 ? 3 : 2;
+        const installmentAmount = Math.ceil((pkg?.price || 0) / totalInstallments / 1000) * 1000;
+        const paidInstallments = installmentPayments.filter((record) => record.event_id === event.id).length;
+        const nextDueDate = new Date(event.event_date);
+        nextDueDate.setDate(nextDueDate.getDate() + 7);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const isOverdue = nextDueDate < today && paidInstallments < totalInstallments;
+
+        return {
+          id: event.id,
+          booking_id: event.id,
+          total_installments: totalInstallments,
+          installment_amount: installmentAmount,
+          paid_installments: Math.min(paidInstallments, totalInstallments),
+          next_due_date: nextDueDate.toISOString().split('T')[0],
+          status: paidInstallments >= totalInstallments ? 'Completed' : isOverdue ? 'Overdue' : 'Active',
+          notes: '',
+          client_name: event.client_name,
+          client_phone: event.client_phone,
+          groom_name: event.client_name,
+          bride_name: '',
+          event_date: event.event_date,
+          booking_total: pkg?.price || 0
+        };
+      });
+  };
+
+  const buildInstallmentSchedules = (planId) => {
+    const plan = buildInstallmentPlans().find((item) => item.id === planId);
+    if (!plan) return [];
+
+    const event = events.find((item) => item.id === plan.booking_id);
+    const schedules = [];
+
+    for (let index = 1; index <= plan.total_installments; index += 1) {
+      const dueDate = new Date(event?.event_date || new Date());
+      dueDate.setDate(dueDate.getDate() + index * 7);
+      const scheduleId = Number(`${plan.id}${String(index).padStart(2, '0')}`);
+      const paymentRecord = installmentPayments.find((record) => record.schedule_id === scheduleId);
+      const paidAmount = paymentRecord ? plan.installment_amount : 0;
+      const isPaid = Boolean(paymentRecord);
+
+      schedules.push({
+        id: scheduleId,
+        installment_plan_id: plan.id,
+        installment_number: index,
+        due_date: dueDate.toISOString().split('T')[0],
+        amount: plan.installment_amount,
+        paid_amount: paidAmount,
+        status: isPaid ? 'Paid' : 'Pending',
+        payment_date: paymentRecord?.payment_date || '',
+        notes: paymentRecord?.notes || ''
+      });
+    }
+
+    return schedules;
+  };
+
   // Middleware: Authenticate Token (Dummy version)
   const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -290,7 +385,7 @@ if (USE_DATABASE) {
         package_price: pkg ? pkg.price : 0
       };
     });
-    res.json({ events: eventsWithPackage });
+    res.json({ data: eventsWithPackage, events: eventsWithPackage });
   });
 
   app.get('/api/events/calendar', authenticateToken, async (req, res) => {
@@ -418,17 +513,8 @@ if (USE_DATABASE) {
   // ==================== PAYMENTS ENDPOINTS ====================
 
   app.get('/api/payments', authenticateToken, async (req, res) => {
-    const paymentsWithDetails = payments.map(p => {
-      const event = events.find(e => e.id === p.event_id);
-      const pkg = event ? packages.find(pk => pk.id === event.package_id) : null;
-      return { 
-        ...p, 
-        client_name: event ? event.client_name : 'Unknown',
-        invoice_number: event ? event.invoice_number : 'N/A',
-        package_price: pkg ? pkg.price : 0
-      };
-    });
-    res.json({ payments: paymentsWithDetails });
+    const paymentsWithDetails = payments.map(mapPaymentForFrontend);
+    res.json({ data: paymentsWithDetails, payments: paymentsWithDetails });
   });
 
   app.post('/api/payments', authenticateToken, async (req, res) => {
@@ -455,16 +541,8 @@ if (USE_DATABASE) {
     };
 
     payments.push(newPayment);
-    const event = events.find(e => e.id === newPayment.event_id);
-    const pkg = event ? packages.find(pk => pk.id === event.package_id) : null;
-
-    res.status(201).json({ 
-      payment: { 
-        ...newPayment, 
-        client_name: event ? event.client_name : 'Unknown',
-        invoice_number: event ? event.invoice_number : 'N/A',
-        package_price: pkg ? pkg.price : 0
-      } 
+    res.status(201).json({
+      payment: mapPaymentForFrontend(newPayment)
     });
   });
 
@@ -616,6 +694,57 @@ if (USE_DATABASE) {
     guests[index].is_attended = status === 'Attending';
     
     res.json({ guest: guests[index] });
+  });
+
+  // ==================== INSTALLMENTS ENDPOINTS (DUMMY) ====================
+
+  app.get('/api/installments', authenticateToken, async (req, res) => {
+    const plans = buildInstallmentPlans();
+    res.json({ data: plans, installments: plans });
+  });
+
+  app.get('/api/installments/summary/dashboard', authenticateToken, async (req, res) => {
+    const plans = buildInstallmentPlans();
+    const summary = {
+      total_plans: plans.length,
+      active_plans: plans.filter((plan) => plan.status === 'Active').length,
+      overdue_plans: plans.filter((plan) => plan.status === 'Overdue').length,
+      completed_plans: plans.filter((plan) => plan.status === 'Completed').length,
+      total_value: plans.reduce((sum, plan) => sum + plan.booking_total, 0),
+      total_paid: plans.reduce((sum, plan) => sum + (plan.installment_amount * plan.paid_installments), 0)
+    };
+
+    res.json({ data: summary });
+  });
+
+  app.get('/api/installments/:id', authenticateToken, async (req, res) => {
+    const planId = Number(req.params.id);
+    const schedules = buildInstallmentSchedules(planId);
+    res.json({ data: { plan_id: planId, schedules } });
+  });
+
+  app.post('/api/installments/:scheduleId/payment', authenticateToken, async (req, res) => {
+    const scheduleId = Number(req.params.scheduleId);
+    const { amount, payment_date, status, notes } = req.body;
+
+    const existingRecord = installmentPayments.find((record) => record.schedule_id === scheduleId);
+    const paymentPayload = {
+      schedule_id: scheduleId,
+      event_id: Number(String(scheduleId).slice(0, -2)) || 0,
+      amount: Number(amount) || 0,
+      payment_date: payment_date || new Date().toISOString().split('T')[0],
+      status: status || 'Paid',
+      notes: notes || '',
+      created_at: new Date().toISOString()
+    };
+
+    if (existingRecord) {
+      Object.assign(existingRecord, paymentPayload);
+    } else {
+      installmentPayments.push(paymentPayload);
+    }
+
+    res.json({ data: { success: true, schedule_id: scheduleId } });
   });
 }
 
