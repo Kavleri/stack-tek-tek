@@ -33,6 +33,7 @@ if (USE_DATABASE) {
   const eventRoutes = require('../routes/event');
   const guestRoutes = require('../routes/guestRoutes');
   const paymentRoutes = require('../routes/paymentRoutes');
+  const installmentRoutes = require('../routes/installmentRoutes');
 
   // Gunakan Routes
   app.use('/api/admins', adminRoutes);
@@ -40,6 +41,7 @@ if (USE_DATABASE) {
   app.use('/api/events', eventRoutes); // Note: event.js might have /booking, /bookings etc.
   app.use('/api/guests', guestRoutes);
   app.use('/api/payments', paymentRoutes);
+  app.use('/api/installments', installmentRoutes);
   
   // Auth compatibility layer (adminRoutes handles login)
   app.use('/api/auth', adminRoutes); 
