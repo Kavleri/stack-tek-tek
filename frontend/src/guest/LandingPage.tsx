@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Package {
   id: number;
@@ -82,9 +83,10 @@ export default function LandingPage() {
   const [packages, setPackages] = useState<Package[]>(initialPackages);
   const [portfolio, setPortfolio] = useState<Portfolio[]>(initialPortfolio);
   const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const apiUrl = import.meta.env.VITE_API_URL || '';
     
     // Fetch packages
     fetch(`${apiUrl}/api/packages`)
@@ -92,7 +94,20 @@ export default function LandingPage() {
         if (!res.ok) throw new Error('Failed to fetch packages');
         return res.json();
       })
-      .then((data) => setPackages(data))
+      .then((data) => {
+        const packagesArray = Array.isArray(data) ? data : data.data;
+        if (!Array.isArray(packagesArray)) throw new Error('Invalid packages data format');
+        
+        const mappedPackages = packagesArray.map((pkg: any) => ({
+          id: pkg.id,
+          name: pkg.name || pkg.package_name || 'Unnamed Package',
+          sub_title: pkg.sub_title || (pkg.price ? `Rp ${Number(pkg.price).toLocaleString('id-ID')}` : 'Special Offer'),
+          icon: pkg.icon || 'star',
+          features: Array.isArray(pkg.features) ? pkg.features : (pkg.description ? [pkg.description] : []),
+          is_popular: !!pkg.is_popular
+        }));
+        setPackages(mappedPackages);
+      })
       .catch((err) => console.warn('Could not load packages from server, using fallback:', err));
 
     // Fetch portfolio
@@ -101,7 +116,11 @@ export default function LandingPage() {
         if (!res.ok) throw new Error('Failed to fetch portfolio');
         return res.json();
       })
-      .then((data) => setPortfolio(data))
+      .then((data) => {
+        const portfolioArray = Array.isArray(data) ? data : data.data;
+        if (!Array.isArray(portfolioArray)) throw new Error('Invalid portfolio data format');
+        setPortfolio(portfolioArray);
+      })
       .catch((err) => console.warn('Could not load portfolio from server, using fallback:', err));
 
     // Fetch vendors
@@ -110,7 +129,11 @@ export default function LandingPage() {
         if (!res.ok) throw new Error('Failed to fetch vendors');
         return res.json();
       })
-      .then((data) => setVendors(data))
+      .then((data) => {
+        const vendorsArray = Array.isArray(data) ? data : data.data;
+        if (!Array.isArray(vendorsArray)) throw new Error('Invalid vendors data format');
+        setVendors(vendorsArray);
+      })
       .catch((err) => console.warn('Could not load vendors from server, using fallback:', err));
   }, []);
 
@@ -132,7 +155,10 @@ export default function LandingPage() {
             <a className="text-blue-900/60 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-100 transition-colors" href="#contact">Contact</a>
           </div>
           <div className="flex items-center gap-4">
-            <button className="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-all">
+            <button 
+              onClick={() => navigate('/admin/login')}
+              className="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-all"
+            >
               Client Login
             </button>
           </div>
@@ -347,10 +373,10 @@ export default function LandingPage() {
           <div>
             <h4 className="font-bold text-primary mb-6 uppercase tracking-widest text-xs">Navigation</h4>
             <ul className="space-y-4 text-on-surface-variant">
-              <li><a className="hover:text-primary transition-colors" href="#">Home</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#packages">Packages</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#portfolio">Portfolio</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#">Vendor Login</a></li>
+              <li><a className="hover:text-primary transition-colors cursor-pointer" href="#">Home</a></li>
+              <li><a className="hover:text-primary transition-colors cursor-pointer" href="#packages">Packages</a></li>
+              <li><a className="hover:text-primary transition-colors cursor-pointer" href="#portfolio">Portfolio</a></li>
+              <li><a onClick={() => navigate('/admin/login')} className="hover:text-primary transition-colors cursor-pointer">Vendor Login</a></li>
             </ul>
           </div>
           <div>

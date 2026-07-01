@@ -1,22 +1,24 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 
 interface Admin {
   id: number;
-  name: string;
-  email: string;
+  username: string;
+  full_name: string;
+  role: 'admin' | 'owner';
 }
 
 interface AuthContextType {
   admin: Admin | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [admin, setAdmin] = useState<Admin | null>(null);
@@ -56,13 +58,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     verifyToken();
   }, [token]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     const response = await fetch(`${API_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username, password }),
     });
 
     if (!response.ok) {
