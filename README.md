@@ -15,8 +15,8 @@ Proyek ini adalah sistem manajemen wedding organizer berbasis web yang dikembang
 - **Distribusi Informasi**: Export work order PDF untuk tim lapangan.
 
 ## Teknologi
-- **Backend**: Node.js, Express.js, TypeScript, MySQL
-- **Frontend**: React.js, TypeScript, Vite
+- **Backend**: Node.js, Express.js, JavaScript, MySQL
+- **Frontend**: React.js, JavaScript, Vite
 - **Database**: MySQL dengan schema relasional
 - **Arsitektur**: MVC (Model-View-Controller) untuk backend
 
