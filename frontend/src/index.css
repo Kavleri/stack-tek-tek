@@ -5,29 +5,9 @@
 @layer base {
   body {
     @apply font-sans bg-surface text-on-surface;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
-  }
-
-  /* Selection color using gold accent */
-  ::selection {
-    background-color: rgba(197, 160, 89, 0.20);
-    color: #000613;
-  }
-}
-
-/* Ghost Border utility for input focus */
-@layer utilities {
-  .ghost-border {
-    border: 1px solid rgba(196, 198, 207, 0.15);
-  }
-  .ghost-border-gold {
-    border: 1px solid rgba(197, 160, 89, 0.20);
   }
 }
 

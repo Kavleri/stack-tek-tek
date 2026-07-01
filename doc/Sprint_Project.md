@@ -121,3 +121,10 @@ Masuk Sprint minggu ke-10
 - Membuat reusable component untuk kebutuhan frontend
 - Integrasi navigasi antar halamanUpload source code project ke GitHub
 - Kumpulkan screenshoot ke asisten dosen masing masing kelompok
+
+## Sprint 12
+- Lanjutkan project kelompok
+- Target projeck kelompok sampai bisa crud antara backend dan frontend
+- Catat semua pembagian pada sprint
+- Upload source code project ke GitHub
+- Kumpulkan screenshoot ke asisten dosen masing masing kelompok
