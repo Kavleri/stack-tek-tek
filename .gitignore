@@ -87,6 +87,7 @@ jspm_packages/
 GEMINI.md
 AGENTS.md
 .agents
+.qwen
 
 # Postman local workspace folders
 .postman/

@@ -1,5 +1,6 @@
 const errorMessages = {
   BOOKING_DATE_CONFLICT: { statusCode: 409, message: "Tanggal sudah dibooking!" },
+  EVENT_NOT_FOUND: { statusCode: 404, message: "Acara tidak ditemukan." },
 };
 
 const bookingErrorHandler = (err, req, res, next) => {

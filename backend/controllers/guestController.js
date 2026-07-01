@@ -6,7 +6,7 @@ async function index(req, res, next) {
 
     return res.json({
       message: 'Berhasil ambil semua data tamu',
-      data: guests,
+      guests: guests,
     });
   } catch (error) {
     return next(error);
@@ -28,7 +28,7 @@ async function show(req, res, next) {
 
     return res.json({
       message: 'Detail tamu',
-      data: guest,
+      guest: guest,
     });
   } catch (error) {
     return next(error);
@@ -42,7 +42,7 @@ async function byEvent(req, res, next) {
 
     return res.json({
       message: 'Berhasil ambil data tamu berdasarkan event',
-      data: guests,
+      guests: guests,
     });
   } catch (error) {
     return next(error);
@@ -57,7 +57,7 @@ async function store(req, res, next) {
 
     return res.status(201).json({
       message: 'Berhasil tambah tamu',
-      data: created,
+      guest: created,
     });
   } catch (error) {
     return next(error);
@@ -77,7 +77,7 @@ async function update(req, res, next) {
 
     return res.json({
       message: 'Berhasil update tamu',
-      data: updated,
+      guest: updated,
     });
   } catch (error) {
     return next(error);

@@ -12,7 +12,7 @@ router.get("/health", (req, res) => {
 });
 
 router.use(authenticateToken);
-router.use(authorizeRoles('admin'));
+router.use(authorizeRoles('admin', 'owner'));
 
 router.get("/", paymentController.index);
 router.get("/:id", paymentValidator.validatePaymentId, paymentController.show);

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 
 interface Admin {
@@ -24,7 +24,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [admin, setAdmin] = useState<Admin | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
+  // Flag untuk mencegah useEffect verifikasi ikut berjalan saat login() baru saja sukses
+  const loginJustCompleted = useRef(false);
 
+  // Hanya verifikasi token saat pertama kali mount (bootstrap)
   useEffect(() => {
     const verifyToken = async () => {
       if (!token) {
@@ -56,7 +59,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     verifyToken();
-  }, [token]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Hanya jalan sekali saat mount
 
   const login = async (username: string, password: string) => {
     const response = await fetch(`${API_URL}/api/auth/login`, {
@@ -74,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const data = await response.json();
     localStorage.setItem('token', data.token);
+    loginJustCompleted.current = true;
     setToken(data.token);
     setAdmin(data.admin);
   };

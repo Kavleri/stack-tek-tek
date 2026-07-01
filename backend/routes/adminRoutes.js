@@ -8,9 +8,10 @@ const authValidator = require('../utils/authValidator');
 const authErrorHandler = require('../utils/authErrorHandler');
 
 router.post('/login', authValidator.validateLogin, authController.login);
+router.get('/me', authenticateToken, authController.getMe);
 
 router.use(authenticateToken);
-router.use(authorizeRoles('admin'));
+router.use(authorizeRoles('admin', 'owner'));
 
 router.get('/', authController.getAdmins);
 router.post('/', authValidator.validateCreateAdmin, authController.createAdmin);

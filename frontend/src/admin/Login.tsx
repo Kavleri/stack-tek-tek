@@ -17,10 +17,13 @@ export default function Login() {
 
     try {
       await login(username, password);
-      navigate('/admin/dashboard');
+      // Tunggu satu tick agar React selesai commit state (admin & token)
+      // sebelum navigate ke halaman terproteksi
+      setTimeout(() => {
+        navigate('/admin/dashboard');
+      }, 0);
     } catch (err: any) {
       setError(err.message || 'Kredensial login salah.');
-    } finally {
       setLoading(false);
     }
   };
