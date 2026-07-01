@@ -42,11 +42,11 @@ const authController = {
         return next({ type: 'JWT_SECRET_MISSING' });
       }
 
-      const jwtSecret = getJwtSecret();
+    //   const jwtSecret = getJwtSecret();
 
-      if (!jwtSecret) {
-        return res.status(500).json({ message: 'Konfigurasi JWT_SECRET belum diatur.' });
-      }
+    //   if (!jwtSecret) {
+    //     return res.status(500).json({ message: 'Konfigurasi JWT_SECRET belum diatur.' });
+    //   }
 
       const token = jwt.sign(
         { id: user.id, username: user.username, role: user.role, fullName: user.full_name },
