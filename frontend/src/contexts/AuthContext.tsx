@@ -1,17 +1,15 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface Admin {
   id: number;
-  username: string;
-  full_name: string;
-  role: 'admin' | 'owner';
+  name: string;
+  email: string;
 }
 
 interface AuthContextType {
   admin: Admin | null;
   token: string | null;
-  login: (username: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -58,13 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     verifyToken();
   }, [token]);
 
-  const login = async (username: string, password: string) => {
+  const login = async (email: string, password: string) => {
     const response = await fetch(`${API_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
 
     if (!response.ok) {

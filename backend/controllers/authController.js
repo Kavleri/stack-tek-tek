@@ -42,7 +42,11 @@ const authController = {
         return next({ type: 'JWT_SECRET_MISSING' });
       }
 
-      // jwtSecret already retrieved above
+      const jwtSecret = getJwtSecret();
+
+      if (!jwtSecret) {
+        return res.status(500).json({ message: 'Konfigurasi JWT_SECRET belum diatur.' });
+      }
 
       const token = jwt.sign(
         { id: user.id, username: user.username, role: user.role, fullName: user.full_name },
@@ -50,19 +54,15 @@ const authController = {
         { expiresIn: '12h' }
       );
 
-      const mappedUser = {
-        id: user.id,
-        username: user.username,
-        fullName: user.full_name,
-        role: user.role,
-        name: user.full_name,
-        email: user.username
-      };
       res.json({
         message: 'Login berhasil.',
         token,
-        user: mappedUser,
-        admin: mappedUser
+        user: {
+          id: user.id,
+          username: user.username,
+          fullName: user.full_name,
+          role: user.role
+        }
       });
     } catch (error) {
       next(error);
