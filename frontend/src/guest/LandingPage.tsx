@@ -159,7 +159,7 @@ export default function LandingPage() {
               onClick={() => navigate('/admin/login')}
               className="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-all"
             >
-              Masuk Klien
+              Masuk Admin
             </button>
           </div>
         </div>

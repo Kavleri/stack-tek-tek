@@ -169,10 +169,10 @@ export default function Events() {
   };
 
   return (
-    <div className="flex min-h-screen bg-surface text-on-surface">
+    <div className="flex min-h-screen items-stretch bg-surface text-on-surface">
       <Sidebar />
 
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-8">
         {/* Header */}
         <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>

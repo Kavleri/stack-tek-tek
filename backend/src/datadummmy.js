@@ -50,7 +50,7 @@ const events = [
   { 
     id: 1, 
     invoice_number: 'INV/20260604/0001', 
-    client_name: 'Kavleri', 
+    client_name: 'Eka & Bima', 
     client_phone: '08123456789', 
     event_date: '2026-06-15', 
     event_time: '08:00', 
@@ -110,7 +110,7 @@ const events = [
   { 
     id: 5, 
     invoice_number: 'INV/20260912/0001', 
-    client_name: 'Haryo Wicaksono', 
+    client_name: 'Bima Pratama', 
     client_phone: '087855667788', 
     event_date: '2026-09-12', 
     event_time: '09:00', 
