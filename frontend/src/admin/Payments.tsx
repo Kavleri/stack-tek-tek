@@ -254,7 +254,7 @@ export default function Payments() {
                       >
                         <td className="p-4 font-mono text-xs font-semibold text-secondary">{p.invoice_number}</td>
                         <td className="p-4 font-serif font-medium text-primary text-sm">{p.client_name}</td>
-                        <td className="p-4 font-serif font-bold text-primary text-sm">Rp {p.payment_amount.toLocaleString('id-ID')}</td>
+                        <td className="p-4 font-serif font-bold text-primary text-sm">Rp {(parseFloat(p.payment_amount as unknown as string) || 0).toLocaleString('id-ID')}</td>
                         <td className="p-4">
                           <span className="px-2.5 py-1 text-[10px] font-bold uppercase bg-secondary-container text-on-secondary-fixed-variant rounded-full">
                             {getPaymentTypeLabel(p.payment_type)}
@@ -324,9 +324,9 @@ export default function Payments() {
                         <td className="p-4 font-mono text-xs font-semibold text-secondary">{c.invoice_number}</td>
                         <td className="p-4 font-serif font-medium text-primary text-sm">{c.client_name}</td>
                         <td className="p-4 text-xs font-semibold text-on-surface-variant">{c.package_name}</td>
-                        <td className="p-4 font-serif text-sm">Rp {c.package_price.toLocaleString('id-ID')}</td>
-                        <td className="p-4 font-serif text-sm text-secondary font-medium">Rp {c.total_paid.toLocaleString('id-ID')}</td>
-                        <td className="p-4 font-serif font-bold text-error text-sm">Rp {c.balance.toLocaleString('id-ID')}</td>
+                        <td className="p-4 font-serif text-sm">Rp {(parseFloat(c.package_price as unknown as string) || 0).toLocaleString('id-ID')}</td>
+                        <td className="p-4 font-serif text-sm text-secondary font-medium">Rp {(parseFloat(c.total_paid as unknown as string) || 0).toLocaleString('id-ID')}</td>
+                        <td className="p-4 font-serif font-bold text-error text-sm">Rp {(parseFloat(c.balance as unknown as string) || 0).toLocaleString('id-ID')}</td>
                         <td className="p-4">
                           <span className={`px-2.5 py-1 text-[10px] font-bold uppercase rounded-full ${
                             c.status === 'Termin'

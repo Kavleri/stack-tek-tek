@@ -76,8 +76,15 @@ export default function Dashboard() {
   }, [token]);
 
   // Calculations
-  const totalRevenue = payments.reduce((sum, p) => sum + (p.payment_amount || 0), 0);
+  const totalRevenue = payments.reduce((sum, p) => sum + (parseFloat(p.payment_amount as unknown as string) || 0), 0);
   const confirmedEvents = events.filter((e) => e.status === 'confirmed').length;
+
+  // Helper: format angka (string atau number) ke Rupiah
+  const formatRupiah = (val: number | string): string => {
+    const num = typeof val === 'string' ? parseFloat(val) : val;
+    if (isNaN(num)) return 'Rp 0';
+    return 'Rp ' + num.toLocaleString('id-ID');
+  };
 
   // Outstanding accounts logic (Daftar Piutang)
   const outstandingEvents = events
@@ -139,7 +146,7 @@ export default function Dashboard() {
           <div className="bg-surface-container-low p-6 rounded-2xl transition-all hover:scale-[1.01] duration-300">
             <span className="material-symbols-outlined text-secondary text-3xl mb-4">payments</span>
             <p className="text-2xl font-serif font-bold text-primary truncate">
-              {loading ? '...' : `Rp ${totalRevenue.toLocaleString('id-ID')}`}
+              {loading ? '...' : formatRupiah(totalRevenue)}
             </p>
             <p className="text-xs text-on-surface-variant font-semibold uppercase tracking-wider mt-1">Total Pemasukan</p>
           </div>
@@ -147,7 +154,7 @@ export default function Dashboard() {
           <div className="bg-surface-container-low p-6 rounded-2xl transition-all hover:scale-[1.01] duration-300">
             <span className="material-symbols-outlined text-error text-3xl mb-4">receipt_long</span>
             <p className="text-2xl font-serif font-bold text-error truncate">
-              {loading ? '...' : `Rp ${totalOutstanding.toLocaleString('id-ID')}`}
+              {loading ? '...' : formatRupiah(totalOutstanding)}
             </p>
             <p className="text-xs text-on-surface-variant font-semibold uppercase tracking-wider mt-1">Piutang Klien</p>
           </div>
@@ -197,10 +204,10 @@ export default function Dashboard() {
                       <div className="text-left md:text-right">
                         <p className="text-xs text-on-surface-variant font-medium">Sisa Pembayaran</p>
                         <p className="text-sm font-serif font-bold text-error mt-0.5">
-                          Rp {evt.balance.toLocaleString('id-ID')}
+                           Rp {(parseFloat(evt.balance as unknown as string) || 0).toLocaleString('id-ID')}
                         </p>
                         <p className="text-[10px] text-on-surface-variant">
-                          Dari total Rp {evt.package_price.toLocaleString('id-ID')}
+                           Dari total Rp {(parseFloat(evt.package_price as unknown as string) || 0).toLocaleString('id-ID')}
                         </p>
                       </div>
                     </div>

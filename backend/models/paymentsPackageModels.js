@@ -1,14 +1,26 @@
-﻿const db = require("../config/database");
+const db = require("../config/database");
 
 class payment {
 
   static async getAll() {
-    const [rows] = await db.query("SELECT * FROM payments");
+    const [rows] = await db.query(`
+      SELECT p.*, e.client_name, e.invoice_number, wp.price AS package_price 
+      FROM payments p 
+      LEFT JOIN events e ON p.event_id = e.id 
+      LEFT JOIN wedding_packages wp ON e.package_id = wp.id
+      ORDER BY p.payment_date DESC
+    `);
     return rows;
   }
 
   static async getById(id) {
-    const [rows] = await db.query("SELECT * FROM payments WHERE id = ?", [id]);
+    const [rows] = await db.query(`
+      SELECT p.*, e.client_name, e.invoice_number, wp.price AS package_price 
+      FROM payments p 
+      LEFT JOIN events e ON p.event_id = e.id 
+      LEFT JOIN wedding_packages wp ON e.package_id = wp.id
+      WHERE p.id = ?
+    `, [id]);
     return rows;
   }
 
