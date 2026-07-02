@@ -1,25 +1,23 @@
 const authValidator = {
   validateLogin: (req, res, next) => {
-    const { username, email, password } = req.body;
-    const identifier = username || email;
-    if (!identifier || !password) {
-      return res.status(400).json({ message: 'Username atau Email dan password harus diisi.' });
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Username dan password harus diisi.' });
     }
-    req.body.username = identifier;
     next();
   },
 
   validateCreateAdmin: (req, res, next) => {
-    const { username, password, fullName } = req.body;
-    if (!username || !password || !fullName) {
+    const { username, password, full_name } = req.body;
+    if (!username || !password || !full_name) {
       return res.status(400).json({ message: 'Username, password, dan full name harus diisi.' });
     }
     next();
   },
 
   validateUpdateAdmin: (req, res, next) => {
-    const { fullName } = req.body;
-    if (!fullName) {
+    const { full_name } = req.body;
+    if (!full_name) {
       return res.status(400).json({ message: 'Full name harus diisi.' });
     }
     next();

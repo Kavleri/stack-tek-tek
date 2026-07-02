@@ -8,31 +8,10 @@ const authValidator = require('../utils/authValidator');
 const authErrorHandler = require('../utils/authErrorHandler');
 
 router.post('/login', authValidator.validateLogin, authController.login);
+router.get('/me', authenticateToken, authController.getMe);
 
 router.use(authenticateToken);
-
-router.get('/me', (req, res) => {
-  res.json({
-    admin: {
-      id: req.user.id,
-      username: req.user.username,
-      fullName: req.user.fullName,
-      role: req.user.role,
-      name: req.user.fullName,
-      email: req.user.username
-    },
-    user: {
-      id: req.user.id,
-      username: req.user.username,
-      fullName: req.user.fullName,
-      role: req.user.role,
-      name: req.user.fullName,
-      email: req.user.username
-    }
-  });
-});
-
-router.use(authorizeRoles('admin'));
+router.use(authorizeRoles('admin', 'owner'));
 
 router.get('/', authController.getAdmins);
 router.post('/', authValidator.validateCreateAdmin, authController.createAdmin);

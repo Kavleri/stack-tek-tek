@@ -39,7 +39,7 @@ function PublicInvitation({ token }: { token: string }) {
   const [rsvpStatus, setRsvpStatus] = useState('');
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const API_URL = import.meta.env.VITE_API_URL || '';
 
   useEffect(() => {
     const fetchGuest = async () => {

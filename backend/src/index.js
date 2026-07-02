@@ -8,6 +8,9 @@ const crypto = require('crypto');
 
 dotenv.config();
 
+const { authenticateToken } = require('../middlewares/authMiddleware');
+const { authorizeRoles } = require('../middlewares/authorizeMiddleware');
+
 const app = express();
 const port = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
@@ -22,10 +25,11 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173', crede
 app.use(express.json());
 app.use(morgan('dev'));
 
+const mainRouter = express.Router();
+
 if (USE_DATABASE) {
   // ==================== REAL DATABASE INTEGRATION ====================
   console.log('📡 Berjalan dalam mode DATABASE (MySQL)');
-  require('../config/database');
   
   // Import Routes
   const adminRoutes = require('../routes/adminRoutes');
@@ -34,15 +38,15 @@ if (USE_DATABASE) {
   const guestRoutes = require('../routes/guestRoutes');
   const paymentRoutes = require('../routes/paymentRoutes');
 
-  // Gunakan Routes
-  app.use('/api/admins', adminRoutes);
-  app.use('/api/packages', weddingPackageRoutes);
-  app.use('/api/events', eventRoutes); // Note: event.js might have /booking, /bookings etc.
-  app.use('/api/guests', guestRoutes);
-  app.use('/api/payments', paymentRoutes);
+  // Gunakan Routes (Prefix /api dihilangkan karena akan di-mount di mainRouter)
+  mainRouter.use('/admins', adminRoutes);
+  mainRouter.use('/packages', weddingPackageRoutes);
+  mainRouter.use('/events', eventRoutes); 
+  mainRouter.use('/guests', guestRoutes);
+  mainRouter.use('/payments', paymentRoutes);
   
-  // Auth compatibility layer (adminRoutes handles login)
-  app.use('/api/auth', adminRoutes); 
+  // Auth compatibility layer
+  mainRouter.use('/auth', adminRoutes); 
 
 } else {
   // ==================== DUMMY DATA INTEGRATION ====================
@@ -59,27 +63,9 @@ if (USE_DATABASE) {
       .replace(/\-\-+/g, '-');
   };
 
-  // Middleware: Authenticate Token (Dummy version)
-  const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-      return res.status(401).json({ message: 'Authentication required' });
-    }
-
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err) {
-        return res.status(403).json({ message: 'Invalid token' });
-      }
-      req.user = user;
-      next();
-    });
-  };
-
   // --- Dummy Endpoints Implementation ---
   
-  app.post('/api/auth/login', async (req, res) => {
+  mainRouter.post('/auth/login', async (req, res) => {
     try {
       const { username, password } = req.body;
       const admin = admins.find(a => a.username === username);
@@ -110,7 +96,7 @@ if (USE_DATABASE) {
     }
   });
 
-  app.get('/api/auth/me', authenticateToken, async (req, res) => {
+  mainRouter.get('/auth/me', authenticateToken, async (req, res) => {
     try {
       const userId = req.user.id;
       const admin = admins.find(a => a.id === userId);
@@ -128,12 +114,12 @@ if (USE_DATABASE) {
 
   // ==================== ADMIN ACCOUNTS ENDPOINTS ====================
 
-  app.get('/api/admins', authenticateToken, async (req, res) => {
+  mainRouter.get('/admins', authenticateToken, async (req, res) => {
     const safeAdmins = admins.map(({ password, ...a }) => a);
     res.json(safeAdmins);
   });
 
-  app.post('/api/admins', authenticateToken, async (req, res) => {
+  mainRouter.post('/admins', authenticateToken, async (req, res) => {
     try {
       const { username, password, full_name, role } = req.body;
 
@@ -164,7 +150,7 @@ if (USE_DATABASE) {
     }
   });
 
-  app.put('/api/admins/:id', authenticateToken, async (req, res) => {
+  mainRouter.put('/admins/:id', authenticateToken, async (req, res) => {
     const index = admins.findIndex(a => a.id === parseInt(req.params.id));
     if (index === -1) {
       return res.status(404).json({ message: 'Admin not found' });
@@ -182,7 +168,7 @@ if (USE_DATABASE) {
     res.json(safeAdmin);
   });
 
-  app.put('/api/admins/:id/reset-password', authenticateToken, async (req, res) => {
+  mainRouter.put('/admins/:id/reset-password', authenticateToken, async (req, res) => {
     try {
       const index = admins.findIndex(a => a.id === parseInt(req.params.id));
       if (index === -1) {
@@ -202,7 +188,7 @@ if (USE_DATABASE) {
     }
   });
 
-  app.delete('/api/admins/:id', authenticateToken, async (req, res) => {
+  mainRouter.delete('/admins/:id', authenticateToken, async (req, res) => {
     const idToDelete = parseInt(req.params.id);
     if (req.user.id === idToDelete) {
       return res.status(400).json({ message: 'Self-deletion is prohibited' });
@@ -219,11 +205,11 @@ if (USE_DATABASE) {
 
   // ==================== PACKAGES ENDPOINTS ====================
 
-  app.get('/api/packages', async (req, res) => {
+  mainRouter.get('/packages', async (req, res) => {
     res.json(packages);
   });
 
-  app.get('/api/packages/:id', async (req, res) => {
+  mainRouter.get('/packages/:id', async (req, res) => {
     const pkg = packages.find(p => p.id === parseInt(req.params.id));
     if (!pkg) {
       return res.status(404).json({ message: 'Package not found' });
@@ -231,7 +217,7 @@ if (USE_DATABASE) {
     res.json(pkg);
   });
 
-  app.post('/api/packages', authenticateToken, async (req, res) => {
+  mainRouter.post('/packages', authenticateToken, async (req, res) => {
     const { package_name, price, description, is_active } = req.body;
     if (!package_name || price === undefined) {
       return res.status(400).json({ message: 'Package name and price are required' });
@@ -250,7 +236,7 @@ if (USE_DATABASE) {
     res.status(201).json(newPackage);
   });
 
-  app.put('/api/packages/:id', authenticateToken, async (req, res) => {
+  mainRouter.put('/packages/:id', authenticateToken, async (req, res) => {
     const index = packages.findIndex(p => p.id === parseInt(req.params.id));
     if (index === -1) {
       return res.status(404).json({ message: 'Package not found' });
@@ -268,7 +254,7 @@ if (USE_DATABASE) {
     res.json(packages[index]);
   });
 
-  app.delete('/api/packages/:id', authenticateToken, async (req, res) => {
+  mainRouter.delete('/packages/:id', authenticateToken, async (req, res) => {
     const index = packages.findIndex(p => p.id === parseInt(req.params.id));
     if (index === -1) {
       return res.status(404).json({ message: 'Package not found' });
@@ -279,7 +265,7 @@ if (USE_DATABASE) {
 
   // ==================== EVENTS ENDPOINTS ====================
 
-  app.get('/api/events', authenticateToken, async (req, res) => {
+  mainRouter.get('/events', authenticateToken, async (req, res) => {
     const eventsWithPackage = events.map(e => {
       const pkg = packages.find(p => p.id === e.package_id);
       return { 
@@ -291,7 +277,7 @@ if (USE_DATABASE) {
     res.json({ events: eventsWithPackage });
   });
 
-  app.get('/api/events/calendar', authenticateToken, async (req, res) => {
+  mainRouter.get('/events/calendar', authenticateToken, async (req, res) => {
     // Only return confirmed date events
     const bookedDates = events
       .filter(e => e.status === 'confirmed')
@@ -299,7 +285,7 @@ if (USE_DATABASE) {
     res.json({ bookedDates });
   });
 
-  app.post('/api/events', authenticateToken, async (req, res) => {
+  mainRouter.post('/events', authenticateToken, async (req, res) => {
     const { 
       client_name, client_phone, event_date, event_time, 
       location_name, location_address, google_maps_link, 
@@ -351,7 +337,7 @@ if (USE_DATABASE) {
     });
   });
 
-  app.put('/api/events/:id', authenticateToken, async (req, res) => {
+  mainRouter.put('/events/:id', authenticateToken, async (req, res) => {
     const index = events.findIndex(e => e.id === parseInt(req.params.id));
     if (index === -1) {
       return res.status(404).json({ message: 'Event not found' });
@@ -399,7 +385,7 @@ if (USE_DATABASE) {
     });
   });
 
-  app.delete('/api/events/:id', authenticateToken, async (req, res) => {
+  mainRouter.delete('/events/:id', authenticateToken, async (req, res) => {
     const index = events.findIndex(e => e.id === parseInt(req.params.id));
     if (index === -1) {
       return res.status(404).json({ message: 'Event not found' });
@@ -415,7 +401,7 @@ if (USE_DATABASE) {
 
   // ==================== PAYMENTS ENDPOINTS ====================
 
-  app.get('/api/payments', authenticateToken, async (req, res) => {
+  mainRouter.get('/payments', authenticateToken, async (req, res) => {
     const paymentsWithDetails = payments.map(p => {
       const event = events.find(e => e.id === p.event_id);
       const pkg = event ? packages.find(pk => pk.id === event.package_id) : null;
@@ -429,7 +415,7 @@ if (USE_DATABASE) {
     res.json({ payments: paymentsWithDetails });
   });
 
-  app.post('/api/payments', authenticateToken, async (req, res) => {
+  mainRouter.post('/payments', authenticateToken, async (req, res) => {
     const { event_id, payment_amount, payment_date, payment_type, payment_method, receipt_note } = req.body;
 
     if (!event_id || payment_amount === undefined || !payment_date || !payment_type) {
@@ -466,7 +452,7 @@ if (USE_DATABASE) {
     });
   });
 
-  app.put('/api/payments/:id', authenticateToken, async (req, res) => {
+  mainRouter.put('/payments/:id', authenticateToken, async (req, res) => {
     const index = payments.findIndex(p => p.id === parseInt(req.params.id));
     if (index === -1) {
       return res.status(404).json({ message: 'Payment not found' });
@@ -496,7 +482,7 @@ if (USE_DATABASE) {
     });
   });
 
-  app.delete('/api/payments/:id', authenticateToken, async (req, res) => {
+  mainRouter.delete('/payments/:id', authenticateToken, async (req, res) => {
     const index = payments.findIndex(p => p.id === parseInt(req.params.id));
     if (index === -1) {
       return res.status(404).json({ message: 'Payment not found' });
@@ -507,13 +493,13 @@ if (USE_DATABASE) {
 
   // ==================== GUESTS ENDPOINTS ====================
 
-  app.get('/api/events/:eventId/guests', authenticateToken, async (req, res) => {
+  mainRouter.get('/events/:eventId/guests', authenticateToken, async (req, res) => {
     const eventId = parseInt(req.params.eventId);
     const eventGuests = guests.filter(g => g.event_id === eventId);
     res.json({ guests: eventGuests });
   });
 
-  app.get('/api/guests', authenticateToken, async (req, res) => {
+  mainRouter.get('/guests', authenticateToken, async (req, res) => {
     const guestsWithEvent = guests.map(g => {
       const event = events.find(e => e.id === g.event_id);
       return { 
@@ -526,7 +512,7 @@ if (USE_DATABASE) {
     res.json({ guests: guestsWithEvent });
   });
 
-  app.post('/api/guests', authenticateToken, async (req, res) => {
+  mainRouter.post('/guests', authenticateToken, async (req, res) => {
     const { event_id, guest_name, guest_phone, invitation_slug, is_attended } = req.body;
 
     if (!event_id || !guest_name) {
@@ -557,7 +543,7 @@ if (USE_DATABASE) {
     });
   });
 
-  app.put('/api/guests/:id', authenticateToken, async (req, res) => {
+  mainRouter.put('/guests/:id', authenticateToken, async (req, res) => {
     const index = guests.findIndex(g => g.id === parseInt(req.params.id));
     if (index === -1) {
       return res.status(404).json({ message: 'Guest not found' });
@@ -584,7 +570,7 @@ if (USE_DATABASE) {
     });
   });
 
-  app.delete('/api/guests/:id', authenticateToken, async (req, res) => {
+  mainRouter.delete('/guests/:id', authenticateToken, async (req, res) => {
     const index = guests.findIndex(g => g.id === parseInt(req.params.id));
     if (index === -1) {
       return res.status(404).json({ message: 'Guest not found' });
@@ -595,7 +581,7 @@ if (USE_DATABASE) {
 
   // ==================== PUBLIC GUEST RSVP ENDPOINTS ====================
 
-  app.get('/api/guests/token/:token', async (req, res) => {
+  mainRouter.get('/guests/token/:token', async (req, res) => {
     const guest = guests.find(g => g.invitation_slug === req.params.token);
     if (!guest) {
       return res.status(404).json({ message: 'Invitation not found' });
@@ -604,7 +590,7 @@ if (USE_DATABASE) {
     res.json({ guest, event });
   });
 
-  app.put('/api/guests/token/:token/rsvp', async (req, res) => {
+  mainRouter.put('/guests/token/:token/rsvp', async (req, res) => {
     const index = guests.findIndex(g => g.invitation_slug === req.params.token);
     if (index === -1) {
       return res.status(404).json({ message: 'Invitation not found' });
@@ -619,7 +605,7 @@ if (USE_DATABASE) {
 
 // ==================== COMMON ENDPOINTS (PORTFOLIO & STATUS) ====================
 
-app.get('/api/portfolio', async (req, res) => {
+mainRouter.get('/portfolio', async (req, res) => {
   res.json([
     { id: 1, title: 'Al-Husna Grand Wedding', category: 'The Royal Ballroom', image_path: '/images/portfolio-ballroom.jpg' },
     { id: 2, title: 'Culinary Excellence', category: 'Halal Catering', image_path: '/images/portfolio-catering.jpg' },
@@ -627,7 +613,7 @@ app.get('/api/portfolio', async (req, res) => {
   ]);
 });
 
-app.get('/api/vendors', async (req, res) => {
+mainRouter.get('/vendors', async (req, res) => {
   res.json([
     { id: 1, name: 'Luxe Halal Catering', category: 'Catering', icon: 'restaurant' },
     { id: 2, name: 'Bloom Syariah Floral', category: 'Floral', icon: 'local_florist' },
@@ -636,7 +622,7 @@ app.get('/api/vendors', async (req, res) => {
   ]);
 });
 
-app.get('/api/status', async (req, res) => {
+mainRouter.get('/status', async (req, res) => {
   res.json({
     message: 'Backend successfully connected to Frontend!',
     databaseStatus: USE_DATABASE ? 'Live MySQL Database' : 'Using database.sql aligned in-memory DB (Dummy Mode)',
@@ -644,6 +630,10 @@ app.get('/api/status', async (req, res) => {
     dummyData: USE_DATABASE ? null : { client_name: 'Kavleri', event_name: 'Silver Package Wedding', status: 'confirmed' }
   });
 });
+
+// Mount the router at both /api and / to handle local dev and Vercel path stripping
+app.use('/api', mainRouter);
+app.use('/', mainRouter);
 
 app.listen(port, () => {
   console.log(`🚀 Yuhu! Backend running smoothly at http://localhost:${port}`);

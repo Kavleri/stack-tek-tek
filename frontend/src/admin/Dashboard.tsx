@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 interface Package {
   id: number;
@@ -118,9 +118,9 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Stats Row — tonal layering with ambient shadows, no borders */}
+        {/* Stats Row with bold serif numbers and tonal separation (no borders) */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-          <div className="bg-surface-container-lowest p-6 rounded-2xl transition-all hover:shadow-ambient hover:scale-[1.01] duration-300 shadow-ambient-sm">
+          <div className="bg-surface-container-low p-6 rounded-2xl transition-all hover:scale-[1.01] duration-300">
             <span className="material-symbols-outlined text-secondary text-3xl mb-4">inventory_2</span>
             <p className="text-3xl font-serif font-bold text-primary">
               {loading ? '...' : packages.length}
@@ -128,7 +128,7 @@ export default function Dashboard() {
             <p className="text-xs text-on-surface-variant font-semibold uppercase tracking-wider mt-1">Total Paket</p>
           </div>
 
-          <div className="bg-surface-container-lowest p-6 rounded-2xl transition-all hover:shadow-ambient hover:scale-[1.01] duration-300 shadow-ambient-sm">
+          <div className="bg-surface-container-low p-6 rounded-2xl transition-all hover:scale-[1.01] duration-300">
             <span className="material-symbols-outlined text-secondary text-3xl mb-4">event_available</span>
             <p className="text-3xl font-serif font-bold text-primary">
               {loading ? '...' : confirmedEvents}
@@ -136,7 +136,7 @@ export default function Dashboard() {
             <p className="text-xs text-on-surface-variant font-semibold uppercase tracking-wider mt-1">Acara Konfirmasi</p>
           </div>
 
-          <div className="bg-surface-container-lowest p-6 rounded-2xl transition-all hover:shadow-ambient hover:scale-[1.01] duration-300 shadow-ambient-sm">
+          <div className="bg-surface-container-low p-6 rounded-2xl transition-all hover:scale-[1.01] duration-300">
             <span className="material-symbols-outlined text-secondary text-3xl mb-4">payments</span>
             <p className="text-2xl font-serif font-bold text-primary truncate">
               {loading ? '...' : `Rp ${totalRevenue.toLocaleString('id-ID')}`}
@@ -144,7 +144,7 @@ export default function Dashboard() {
             <p className="text-xs text-on-surface-variant font-semibold uppercase tracking-wider mt-1">Total Pemasukan</p>
           </div>
 
-          <div className="bg-surface-container-lowest p-6 rounded-2xl transition-all hover:shadow-ambient hover:scale-[1.01] duration-300 shadow-ambient-sm">
+          <div className="bg-surface-container-low p-6 rounded-2xl transition-all hover:scale-[1.01] duration-300">
             <span className="material-symbols-outlined text-error text-3xl mb-4">receipt_long</span>
             <p className="text-2xl font-serif font-bold text-error truncate">
               {loading ? '...' : `Rp ${totalOutstanding.toLocaleString('id-ID')}`}
@@ -181,7 +181,7 @@ export default function Dashboard() {
                   outstandingEvents.map((evt) => (
                     <div
                       key={evt.id}
-                      className="bg-surface-container-lowest p-4 rounded-xl shadow-ambient-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:translate-x-0.5 hover:shadow-ambient duration-200"
+                      className="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:translate-x-0.5 duration-200"
                     >
                       <div className="space-y-1">
                         <p className="text-xs text-secondary font-semibold font-sans tracking-wide uppercase">
@@ -224,7 +224,7 @@ export default function Dashboard() {
                   events.slice(0, 5).map((evt) => (
                     <div
                       key={evt.id}
-                      className="bg-surface-container-lowest p-4 rounded-xl shadow-ambient-sm flex items-center justify-between"
+                      className="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex items-center justify-between"
                     >
                       <div>
                         <h4 className="font-serif font-medium text-primary text-sm">
@@ -241,12 +241,12 @@ export default function Dashboard() {
                       <div className="text-right">
                         <span
                           className={`inline-block px-2.5 py-1 text-[10px] font-bold uppercase rounded-full ${evt.status === 'confirmed'
-                              ? 'bg-secondary-container text-on-secondary-container'
+                              ? 'bg-secondary-container text-on-secondary-fixed-variant'
                               : evt.status === 'completed'
-                                ? 'bg-primary-container text-on-primary-container'
+                                ? 'bg-primary-container text-on-primary-fixed-variant'
                                 : evt.status === 'cancelled'
                                   ? 'bg-error-container text-on-error-container'
-                                  : 'bg-surface-container-high text-on-surface-variant'
+                                  : 'bg-tertiary-fixed text-on-tertiary-fixed-variant'
                             }`}
                         >
                           {evt.status === 'confirmed' ? 'Dikonfirmasi' : evt.status === 'completed' ? 'Selesai' : evt.status === 'cancelled' ? 'Batal' : 'Pending'}

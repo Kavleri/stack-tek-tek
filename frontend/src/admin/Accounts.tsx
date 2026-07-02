@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 interface AdminAccount {
   id: number;
@@ -206,7 +206,7 @@ export default function Accounts() {
                 setErrorMsg('');
                 setShowModal(true);
               }}
-              className="bg-gradient-primary-r text-white px-5 py-3 rounded-lg text-xs font-semibold uppercase tracking-wider hover:opacity-95 transition-all duration-300 shadow-ambient-sm flex items-center gap-2"
+              className="bg-primary text-white px-5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider hover:opacity-95 transition-all duration-300 shadow-md shadow-primary/10 flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-sm">person_add</span>
               Daftarkan Admin Baru
@@ -216,7 +216,7 @@ export default function Accounts() {
 
         {/* Feedback Alert Banners */}
         {successMsg && (
-          <div className="bg-secondary-container text-on-secondary-container p-4 rounded-xl text-xs font-sans font-semibold flex items-center gap-2 mb-6">
+          <div className="bg-secondary-container text-on-secondary-fixed-variant p-4 rounded-xl text-xs font-sans font-semibold flex items-center gap-2 mb-6">
             <span className="material-symbols-outlined text-sm">verified</span>
             {successMsg}
           </div>
@@ -228,7 +228,7 @@ export default function Accounts() {
           </div>
         )}
 
-        {/* Accounts Table (Ghost Table — no line borders, tonal separation) */}
+        {/* Accounts Table (Ghost Table format) */}
         <div className="bg-surface-container-low p-6 rounded-3xl">
           {loading ? (
             <p className="text-sm text-on-surface-variant">Memuat data staf...</p>
@@ -257,7 +257,7 @@ export default function Accounts() {
                         <td className="p-4 font-serif font-medium text-primary text-sm flex items-center gap-2">
                           {acc.full_name}
                           {isSelf && (
-                            <span className="text-[9px] uppercase tracking-wider bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full font-sans font-bold">
+                            <span className="text-[9px] uppercase tracking-wider bg-secondary-container text-on-secondary-fixed-variant px-2 py-0.5 rounded-full font-sans font-bold">
                               Saya
                             </span>
                           )}
@@ -266,7 +266,7 @@ export default function Accounts() {
                         <td className="p-4">
                           <span className={`px-2.5 py-1 text-[10px] font-bold uppercase rounded-full ${
                             acc.role === 'owner'
-                              ? 'bg-primary-container text-on-primary-container'
+                              ? 'bg-primary-container text-on-primary-fixed-variant'
                               : 'bg-surface-container-high text-on-surface-variant'
                           }`}>
                             {acc.role}
@@ -316,7 +316,7 @@ export default function Accounts() {
         {/* Modal: Add / Edit Account */}
         {showModal && (
           <div className="fixed inset-0 bg-primary/20 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity duration-300">
-            <div className="bg-surface-container-lowest p-8 rounded-[24px] shadow-ambient-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-surface-container-lowest p-8 rounded-[24px] shadow-[0_12px_40px_rgba(11,37,69,0.06)] border border-outline-variant/15 w-full max-w-lg max-h-[90vh] overflow-y-auto">
               <h2 className="text-2xl font-serif text-primary mb-6">
                 {editingAccount ? 'Ubah Profil Admin' : 'Daftarkan Akun Staf Baru'}
               </h2>
@@ -328,7 +328,7 @@ export default function Accounts() {
                     type="text"
                     value={formData.full_name}
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl ghost-border focus:ghost-border-gold focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans focus:shadow-[0_2px_12px_rgba(197,160,89,0.12)]"
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
                     placeholder="Nama Lengkap Staf"
                     required
                   />
@@ -340,7 +340,7 @@ export default function Accounts() {
                     type="text"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl ghost-border focus:ghost-border-gold focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans focus:shadow-[0_2px_12px_rgba(197,160,89,0.12)]"
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
                     placeholder="Username untuk masuk"
                     required
                     disabled={!!editingAccount}
@@ -354,7 +354,7 @@ export default function Accounts() {
                       type="password"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl ghost-border focus:ghost-border-gold focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans focus:shadow-[0_2px_12px_rgba(197,160,89,0.12)]"
+                      className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
                       placeholder="Masukkan password awal"
                       required
                     />
@@ -366,14 +366,14 @@ export default function Accounts() {
                   <select
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
-                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl ghost-border focus:ghost-border-gold focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans focus:shadow-[0_2px_12px_rgba(197,160,89,0.12)]"
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
                   >
                     <option value="admin">Administrator Staf</option>
                     <option value="owner">Agensi Owner</option>
                   </select>
                 </div>
 
-                <div className="flex gap-4 pt-4">
+                <div className="flex gap-4 pt-4 border-t border-outline-variant/10">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
@@ -383,7 +383,7 @@ export default function Accounts() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-primary-r text-white py-3 rounded-lg text-xs font-semibold uppercase hover:opacity-95 transition-all duration-300 shadow-ambient-sm"
+                    className="flex-1 bg-primary text-white py-3 rounded-xl text-xs font-semibold uppercase hover:opacity-95 transition-all duration-300 shadow-md shadow-primary/10"
                   >
                     Simpan Akun
                   </button>
@@ -396,7 +396,7 @@ export default function Accounts() {
         {/* Modal: Reset Password */}
         {showResetModal && (
           <div className="fixed inset-0 bg-primary/20 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity duration-300">
-            <div className="bg-surface-container-lowest p-8 rounded-[24px] shadow-ambient-lg w-full max-w-md">
+            <div className="bg-surface-container-lowest p-8 rounded-[24px] shadow-[0_12px_40px_rgba(11,37,69,0.06)] border border-outline-variant/15 w-full max-w-md">
               <h2 className="text-2xl font-serif text-primary mb-2">Reset Password</h2>
               <p className="text-xs text-on-surface-variant mb-6 font-sans">
                 Mengubah sandi untuk staf: <span className="font-semibold text-primary">{targetAccountForReset?.full_name}</span>
@@ -409,13 +409,13 @@ export default function Accounts() {
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl ghost-border focus:ghost-border-gold focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans focus:shadow-[0_2px_12px_rgba(197,160,89,0.12)]"
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
                     placeholder="Masukkan password baru"
                     required
                   />
                 </div>
 
-                <div className="flex gap-4 pt-4">
+                <div className="flex gap-4 pt-4 border-t border-outline-variant/10">
                   <button
                     type="button"
                     onClick={() => {
@@ -428,7 +428,7 @@ export default function Accounts() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-primary-r text-white py-3 rounded-lg text-xs font-semibold uppercase hover:opacity-95 transition-all duration-300 shadow-ambient-sm"
+                    className="flex-1 bg-primary text-white py-3 rounded-xl text-xs font-semibold uppercase hover:opacity-95 transition-all duration-300 shadow-md shadow-primary/10"
                   >
                     Setel Ulang Password
                   </button>

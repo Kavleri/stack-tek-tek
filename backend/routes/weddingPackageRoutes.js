@@ -15,9 +15,9 @@ const router = express.Router();
 
 router.get('/', getWeddingPackages);
 router.get('/:id', weddingPackageValidator.validateWeddingPackageId, getWeddingPackageById);
-router.post('/', authenticateToken, authorizeRoles('admin'), weddingPackageValidator.validateCreateWeddingPackage, createWeddingPackageHandler);
-router.put('/:id', authenticateToken, authorizeRoles('admin'), weddingPackageValidator.validateWeddingPackageId, weddingPackageValidator.validateUpdateWeddingPackage, updateWeddingPackageHandler);
-router.delete('/:id', authenticateToken, authorizeRoles('admin'), weddingPackageValidator.validateWeddingPackageId, deleteWeddingPackageHandler);
+router.post('/', authenticateToken, authorizeRoles('admin', 'owner'), weddingPackageValidator.validateCreateWeddingPackage, createWeddingPackageHandler);
+router.put('/:id', authenticateToken, authorizeRoles('admin', 'owner'), weddingPackageValidator.validateWeddingPackageId, weddingPackageValidator.validateUpdateWeddingPackage, updateWeddingPackageHandler);
+router.delete('/:id', authenticateToken, authorizeRoles('admin', 'owner'), weddingPackageValidator.validateWeddingPackageId, deleteWeddingPackageHandler);
 
 router.use(weddingPackageErrorHandler);
 
