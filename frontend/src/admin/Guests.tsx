@@ -1,84 +1,73 @@
 import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 interface Event {
   id: number;
-  groom_name: string;
-  bride_name: string;
+  invoice_number: string;
+  client_name: string;
 }
 
 interface Guest {
   id: number;
   event_id: number;
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
-  status: string;
-  invitation_token: string;
+  guest_name: string;
+  guest_phone: string;
+  invitation_slug: string;
+  is_attended: boolean;
+  client_name?: string;
+  event_date?: string;
+  invoice_number?: string;
 }
 
 export default function Guests() {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<number | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<number | 'all'>('all');
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
+
   const [formData, setFormData] = useState<Partial<Guest>>({
     event_id: 0,
-    name: '',
-    phone: '',
-    email: '',
-    address: '',
-    status: 'Pending',
+    guest_name: '',
+    guest_phone: '',
+    invitation_slug: '',
+    is_attended: false,
   });
+
   const token = localStorage.getItem('token');
 
-  const fetchEvents = async () => {
+  const fetchData = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/events`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setEvents(data.events || []);
-        if (data.events?.length > 0 && !selectedEvent) {
-          setSelectedEvent(data.events[0].id);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch events:', error);
-    }
-  };
+      const [guestsRes, eventsRes] = await Promise.all([
+        fetch(`${API_URL}/api/guests`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_URL}/api/events`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
 
-  const fetchGuests = async (eventId: number) => {
-    try {
-      const response = await fetch(`${API_URL}/api/events/${eventId}/guests`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.ok) {
-        const data = await response.json();
+      if (guestsRes.ok) {
+        const data = await guestsRes.json();
         setGuests(data.guests || []);
       }
+      if (eventsRes.ok) {
+        const data = await eventsRes.json();
+        setEvents(data.events || []);
+      }
     } catch (error) {
-      console.error('Failed to fetch guests:', error);
+      console.error('Failed to fetch guests data:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchEvents();
+    fetchData();
   }, [token]);
-
-  useEffect(() => {
-    if (selectedEvent) {
-      fetchGuests(selectedEvent);
-    }
-  }, [selectedEvent]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,31 +90,34 @@ export default function Guests() {
         setShowModal(false);
         setEditingGuest(null);
         setFormData({
-          event_id: selectedEvent || 0,
-          name: '',
-          phone: '',
-          email: '',
-          address: '',
-          status: 'Pending',
+          event_id: selectedEventId !== 'all' ? selectedEventId : (events.length > 0 ? events[0].id : 0),
+          guest_name: '',
+          guest_phone: '',
+          invitation_slug: '',
+          is_attended: false,
         });
-        if (selectedEvent) {
-          fetchGuests(selectedEvent);
-        }
+        fetchData();
       }
     } catch (error) {
       console.error('Failed to save guest:', error);
     }
   };
 
+  const handleEdit = (guest: Guest) => {
+    setEditingGuest(guest);
+    setFormData(guest);
+    setShowModal(true);
+  };
+
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this guest?')) {
+    if (window.confirm('Apakah Anda yakin ingin menghapus data tamu undangan ini?')) {
       try {
-        await fetch(`${API_URL}/api/guests/${id}`, {
+        const response = await fetch(`${API_URL}/api/guests/${id}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (selectedEvent) {
-          fetchGuests(selectedEvent);
+        if (response.ok) {
+          fetchData();
         }
       } catch (error) {
         console.error('Failed to delete guest:', error);
@@ -133,215 +125,317 @@ export default function Guests() {
     }
   };
 
-  const copyInvitationLink = (token: string) => {
-    const link = `${window.location.origin}/invitation/${token}`;
-    navigator.clipboard.writeText(link);
-    alert('Invitation link copied!');
+  // Quick door attendance checker check-in
+  const toggleAttendance = async (guest: Guest) => {
+    try {
+      const response = await fetch(`${API_URL}/api/guests/${guest.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          is_attended: !guest.is_attended
+        }),
+      });
+
+      if (response.ok) {
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Failed to toggle attendance:', error);
+    }
   };
 
+  // Copy link to clipboard helper
+  const handleCopyLink = (slug: string) => {
+    const link = `${window.location.origin}/invitation/${slug}`;
+    navigator.clipboard.writeText(link);
+    alert('Tautan undangan berhasil disalin!');
+  };
+
+  // WhatsApp share redirect handler
+  const handleShareWhatsApp = (guest: Guest) => {
+    const link = `${window.location.origin}/invitation/${guest.invitation_slug}`;
+    const message = `Assalamu'alaikum Wr. Wb.
+
+Yth. Bapak/Ibu/Saudara/i *${guest.guest_name}*,
+
+Tanpa mengurangi rasa hormat, kami mengundang Anda untuk menghadiri acara pernikahan kami. Detail informasi acara dan konfirmasi kehadiran dapat diakses melalui tautan undangan digital berikut:
+
+${link}
+
+Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.
+
+Jazakumullah Khairan.
+Wassalamu'alaikum Wr. Wb.`;
+
+    const encodedText = encodeURIComponent(message);
+    const cleanPhone = guest.guest_phone.replace(/\D/g, '');
+    let formattedPhone = cleanPhone;
+    if (cleanPhone.startsWith('0')) {
+      formattedPhone = '62' + cleanPhone.substring(1);
+    }
+    
+    window.open(`https://wa.me/${formattedPhone}?text=${encodedText}`, '_blank');
+  };
+
+  // Filter guests
+  const filteredGuests = selectedEventId === 'all'
+    ? guests
+    : guests.filter(g => g.event_id === Number(selectedEventId));
+
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-surface text-on-surface">
       <Sidebar />
-      <div className="flex-1 p-8">
-        <div className="flex items-center justify-between mb-8">
+
+      <main className="flex-1 p-8 overflow-y-auto">
+        {/* Header */}
+        <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-serif text-slate-800">Guests</h1>
-            <p className="text-slate-500 mt-1">Manage your wedding guests</p>
+            <h1 className="text-4xl font-serif font-light text-primary tracking-wide">
+              Digital <span className="font-normal font-serif">Guest Book</span>
+            </h1>
+            <p className="text-xs text-on-surface-variant tracking-wider uppercase font-sans mt-2 font-medium">
+              Buku Tamu Digital & Pengiriman Undangan WhatsApp
+            </p>
           </div>
-          <button
-            onClick={() => {
-              setEditingGuest(null);
-              setFormData({
-                event_id: selectedEvent || 0,
-                name: '',
-                phone: '',
-                email: '',
-                address: '',
-                status: 'Pending',
-              });
-              setShowModal(true);
-            }}
-            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined">add</span>
-            Add Guest
-          </button>
+          <div>
+            <button
+              onClick={() => {
+                setEditingGuest(null);
+                setFormData({
+                  event_id: selectedEventId !== 'all' ? selectedEventId : (events.length > 0 ? events[0].id : 0),
+                  guest_name: '',
+                  guest_phone: '',
+                  invitation_slug: '',
+                  is_attended: false,
+                });
+                setShowModal(true);
+              }}
+              className="bg-primary text-white px-5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider hover:opacity-95 transition-all duration-300 shadow-md shadow-primary/10 flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-sm">person_add</span>
+              Tambah Tamu Undangan
+            </button>
+          </div>
         </div>
 
-        {events.length > 0 && (
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-slate-700 mb-2">Select Event</label>
+        {/* Filter controls (no lines, Sanctuary styled) */}
+        <div className="mb-8 bg-surface-container-low p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="w-full sm:max-w-xs space-y-1.5">
+            <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Saring Berdasarkan Acara</label>
             <select
-              value={selectedEvent || ''}
-              onChange={(e) => setSelectedEvent(Number(e.target.value))}
-              className="w-full max-w-md px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+              value={selectedEventId}
+              onChange={(e) => setSelectedEventId(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+              className="w-full px-4 py-2.5 bg-surface-container-lowest text-on-surface rounded-xl border border-transparent outline-none text-xs font-semibold uppercase tracking-wider"
             >
-              {events.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {event.groom_name} & {event.bride_name}
+              <option value="all">Semua Acara</option>
+              {events.map((evt) => (
+                <option key={evt.id} value={evt.id}>
+                  {evt.client_name} ({evt.invoice_number})
                 </option>
               ))}
             </select>
           </div>
-        )}
 
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Name</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Phone</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Email</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Status</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-slate-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {loading ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
-                      Loading guests...
-                    </td>
+          <div className="flex gap-4 items-center">
+            <div className="text-right">
+              <p className="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider">Hadir / Total Tamu</p>
+              <p className="text-xl font-serif font-bold text-primary mt-0.5">
+                {filteredGuests.filter(g => g.is_attended).length} <span className="text-xs text-on-surface-variant font-normal font-sans">dari</span> {filteredGuests.length}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Guestbook List (Ghost Table format) */}
+        <div className="bg-surface-container-low p-6 rounded-3xl">
+          {loading ? (
+            <p className="text-sm text-on-surface-variant">Memuat daftar tamu...</p>
+          ) : filteredGuests.length === 0 ? (
+            <p className="text-sm text-on-surface-variant italic">Belum ada tamu terdaftar untuk acara ini.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="text-on-surface-variant text-[11px] font-semibold uppercase tracking-widest bg-surface-container-high/40">
+                    <th className="p-4 rounded-l-xl">Status Hadir</th>
+                    <th className="p-4">Nama Tamu</th>
+                    <th className="p-4">Nomor HP</th>
+                    <th className="p-4">Undangan Pernikahan Klien</th>
+                    <th className="p-4">Slug Tautan</th>
+                    <th className="p-4 rounded-r-xl text-right">Aksi Undangan</th>
                   </tr>
-                ) : guests.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
-                      No guests yet
-                    </td>
-                  </tr>
-                ) : (
-                  guests.map((guest) => (
-                    <tr key={guest.id} className="hover:bg-slate-50">
-                      <td className="px-6 py-4">
-                        <p className="font-medium text-slate-800">{guest.name}</p>
-                      </td>
-                      <td className="px-6 py-4 text-slate-600">{guest.phone}</td>
-                      <td className="px-6 py-4 text-slate-600">{guest.email}</td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                            guest.status === 'Attending'
-                              ? 'bg-green-100 text-green-700'
-                              : guest.status === 'Pending'
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : 'bg-red-100 text-red-700'
+                </thead>
+                <tbody>
+                  {filteredGuests.map((g) => (
+                    <tr
+                      key={g.id}
+                      className="hover:bg-surface-container-lowest transition-all duration-200"
+                    >
+                      {/* Attendance Toggle Check-In */}
+                      <td className="p-4">
+                        <button
+                          onClick={() => toggleAttendance(g)}
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all ${
+                            g.is_attended
+                              ? 'bg-secondary-container text-on-secondary-fixed-variant'
+                              : 'bg-surface-container-high text-on-surface-variant hover:bg-secondary-container/50'
                           }`}
                         >
-                          {guest.status}
-                        </span>
+                          <span className="material-symbols-outlined text-sm">
+                            {g.is_attended ? 'check_circle' : 'circle'}
+                          </span>
+                          {g.is_attended ? 'Hadir' : 'Absen'}
+                        </button>
                       </td>
-                      <td className="px-6 py-4 text-right">
+
+                      <td className="p-4 font-serif font-medium text-primary text-sm">{g.guest_name}</td>
+                      <td className="p-4 text-xs font-mono text-on-surface-variant font-medium">{g.guest_phone || '-'}</td>
+                      <td className="p-4 text-xs text-on-surface-variant">{g.client_name || 'Umum'}</td>
+                      <td className="p-4 text-xs font-mono text-secondary max-w-[120px] truncate" title={g.invitation_slug}>
+                        {g.invitation_slug}
+                      </td>
+
+                      <td className="p-4 text-right">
                         <div className="flex justify-end gap-2">
                           <button
-                            onClick={() => copyInvitationLink(guest.invitation_token)}
-                            className="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-amber-200"
+                            onClick={() => handleCopyLink(g.invitation_slug)}
+                            className="bg-surface-container-high text-primary px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-secondary-container transition-all"
+                            title="Salin Link Undangan"
                           >
-                            Copy Link
+                            Salin Link
+                          </button>
+                          
+                          {g.guest_phone && (
+                            <button
+                              onClick={() => handleShareWhatsApp(g)}
+                              className="bg-secondary text-white px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 transition-all flex items-center gap-1"
+                              title="Kirim ke WhatsApp"
+                            >
+                              <span className="material-symbols-outlined text-[13px]">share</span>
+                              Kirim WA
+                            </button>
+                          )}
+                          
+                          <button
+                            onClick={() => handleEdit(g)}
+                            className="bg-surface-container-high text-primary p-1.5 rounded-lg hover:bg-secondary-container transition-all"
+                            title="Edit Tamu"
+                          >
+                            <span className="material-symbols-outlined text-sm">edit</span>
                           </button>
                           <button
-                            onClick={() => {
-                              setEditingGuest(guest);
-                              setFormData(guest);
-                              setShowModal(true);
-                            }}
-                            className="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-slate-200"
+                            onClick={() => handleDelete(g.id)}
+                            className="bg-error-container/45 text-on-error-container p-1.5 rounded-lg hover:bg-error-container transition-all"
+                            title="Hapus Tamu"
                           >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(guest.id)}
-                            className="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-red-200"
-                          >
-                            Delete
+                            <span className="material-symbols-outlined text-sm">delete</span>
                           </button>
                         </div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl p-6 w-full max-w-lg">
-              <h2 className="text-2xl font-serif text-slate-800 mb-6">
-                {editingGuest ? 'Edit Guest' : 'Add New Guest'}
+          <div className="fixed inset-0 bg-primary/20 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity duration-300">
+            <div className="bg-surface-container-lowest p-8 rounded-[24px] shadow-[0_12px_40px_rgba(11,37,69,0.06)] border border-outline-variant/15 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+              <h2 className="text-2xl font-serif text-primary mb-6">
+                {editingGuest ? 'Edit Tamu Undangan' : 'Tambah Tamu Undangan Baru'}
               </h2>
+
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Acara Pernikahan</label>
+                  <select
+                    value={formData.event_id || ''}
+                    onChange={(e) => setFormData({ ...formData, event_id: Number(e.target.value) })}
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                    required
+                  >
+                    <option value="">-- Pilih Acara --</option>
+                    {events.map((evt) => (
+                      <option key={evt.id} value={evt.id}>
+                        {evt.client_name} ({evt.invoice_number})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nama Lengkap Tamu</label>
                   <input
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                    value={formData.guest_name}
+                    onChange={(e) => setFormData({ ...formData, guest_name: e.target.value })}
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                    placeholder="Contoh: Bapak H. Ahmad Subardjo"
                     required
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nomor HP (WhatsApp)</label>
                   <input
                     type="text"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                    value={formData.guest_phone}
+                    onChange={(e) => setFormData({ ...formData, guest_phone: e.target.value })}
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                    placeholder="Contoh: 0812345678"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Kustom Slug Tautan Undangan (Opsional)</label>
                   <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                    type="text"
+                    value={formData.invitation_slug}
+                    onChange={(e) => setFormData({ ...formData, invitation_slug: e.target.value })}
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                    placeholder="Contoh: ahmad-subardjo (kosongkan untuk auto-generate)"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
-                  <textarea
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    rows={3}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+
+                <div className="flex items-center gap-3 py-2">
+                  <input
+                    type="checkbox"
+                    id="is_attended"
+                    checked={formData.is_attended || false}
+                    onChange={(e) => setFormData({ ...formData, is_attended: e.target.checked })}
+                    className="w-4 h-4 text-primary bg-surface-container-low border-transparent rounded focus:ring-0 focus:ring-offset-0"
                   />
+                  <label htmlFor="is_attended" className="text-sm font-medium text-on-surface">
+                    Tandai Tamu Sudah Hadir di Lokasi (Check-In)
+                  </label>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Attending">Attending</option>
-                    <option value="Not Attending">Not Attending</option>
-                  </select>
-                </div>
-                <div className="flex gap-3 pt-4">
+
+                <div className="flex gap-4 pt-4 border-t border-outline-variant/10">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="flex-1 bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200"
+                    className="flex-1 bg-surface-container-low text-on-surface-variant py-3 rounded-xl text-xs font-semibold uppercase hover:bg-surface-container-high transition-all duration-300"
                   >
-                    Cancel
+                    Batal
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700"
+                    className="flex-1 bg-primary text-white py-3 rounded-xl text-xs font-semibold uppercase hover:opacity-95 transition-all duration-300 shadow-md shadow-primary/10"
                   >
-                    Save
+                    Simpan Tamu
                   </button>
                 </div>
               </form>
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

@@ -8,7 +8,7 @@ const guestErrorHandler = require('../utils/guestErrorHandler');
 const router = express.Router();
 
 router.use(authenticateToken);
-router.use(authorizeRoles('admin'));
+router.use(authorizeRoles('admin', 'owner'));
 router.get('/', guestController.index);
 router.get('/event/:eventId', guestValidator.validateGuestEventId, guestController.byEvent);
 router.get('/:id', guestValidator.validateGuestId, guestController.show);

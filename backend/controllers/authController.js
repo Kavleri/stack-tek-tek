@@ -11,6 +11,25 @@ function getJwtSecret() {
 }
 
 const authController = {
+  getMe: async (req, res, next) => {
+    try {
+      const user = await AdminModel.findById(req.user.id);
+      if (!user) {
+        return next({ type: 'ADMIN_NOT_FOUND' });
+      }
+      res.json({
+        admin: {
+          id: user.id,
+          username: user.username,
+          full_name: user.full_name,
+          role: user.role
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   login: async (req, res, next) => {
     try {
       const { username, password } = req.body;
@@ -42,11 +61,11 @@ const authController = {
         return next({ type: 'JWT_SECRET_MISSING' });
       }
 
-      const jwtSecret = getJwtSecret();
+    //   const jwtSecret = getJwtSecret();
 
-      if (!jwtSecret) {
-        return res.status(500).json({ message: 'Konfigurasi JWT_SECRET belum diatur.' });
-      }
+    //   if (!jwtSecret) {
+    //     return res.status(500).json({ message: 'Konfigurasi JWT_SECRET belum diatur.' });
+    //   }
 
       const token = jwt.sign(
         { id: user.id, username: user.username, role: user.role, fullName: user.full_name },
@@ -57,10 +76,10 @@ const authController = {
       res.json({
         message: 'Login berhasil.',
         token,
-        user: {
+        admin: {
           id: user.id,
           username: user.username,
-          fullName: user.full_name,
+          full_name: user.full_name,
           role: user.role
         }
       });
@@ -80,14 +99,14 @@ const authController = {
 
   createAdmin: async (req, res, next) => {
     try {
-      const { username, password, fullName, role } = req.body;
+      const { username, password, full_name, role } = req.body;
 
       const existingUser = await AdminModel.findByUsername(username);
       if (existingUser) {
         return next({ type: 'USERNAME_TAKEN' });
       }
 
-      const insertId = await AdminModel.create({ username, password, fullName, role });
+      const insertId = await AdminModel.create({ username, password, full_name, role });
       res.status(201).json({ message: 'Akun admin berhasil dibuat.', adminId: insertId });
     } catch (error) {
       next(error);
@@ -97,9 +116,9 @@ const authController = {
   updateAdmin: async (req, res, next) => {
     try {
       const { id } = req.params;
-      const { fullName, role } = req.body;
+      const { full_name, role } = req.body;
 
-      const affectedRows = await AdminModel.update(id, { fullName, role: role || 'admin' });
+      const affectedRows = await AdminModel.update(id, { full_name, role: role || 'admin' });
       if (affectedRows === 0) {
         return next({ type: 'ADMIN_NOT_FOUND' });
       }

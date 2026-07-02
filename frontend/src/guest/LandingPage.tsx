@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Package {
   id: number;
@@ -26,26 +27,26 @@ interface Vendor {
 const initialPackages: Package[] = [
   {
     id: 1,
-    name: 'Bronze Package',
-    sub_title: 'Intimate Sanctuary',
+    name: 'Paket Bronze',
+    sub_title: 'Acara Intim',
     icon: 'stars',
-    features: ['Up to 200 Guests', 'Syariah Catering Basic', 'Standard Decor Theme', 'Documentation (1 Photographer)'],
+    features: ['Maks. 200 Tamu', 'Catering Syariah Basic', 'Tema Dekor Standar', 'Dokumentasi (1 Fotografer)'],
     is_popular: false
   },
   {
     id: 2,
-    name: 'Gold Package',
-    sub_title: 'Grand Celebration',
+    name: 'Paket Gold',
+    sub_title: 'Perayaan Agung',
     icon: 'diamond',
-    features: ['Up to 1000 Guests', 'Premium Syariah Buffet', 'Full Custom Decor & Floral', 'Live Cinematic Documentation'],
+    features: ['Maks. 1000 Tamu', 'Buffet Syariah Premium', 'Dekor & Floral Full Kustom', 'Dokumentasi Sinematik Live'],
     is_popular: true
   },
   {
     id: 3,
-    name: 'Silver Package',
-    sub_title: 'Elegant Gathering',
+    name: 'Paket Silver',
+    sub_title: 'Kumpul Elegan',
     icon: 'workspace_premium',
-    features: ['Up to 500 Guests', 'Deluxe Syariah Buffet', 'Semi-Custom Decor', 'Photo & Video Coverage'],
+    features: ['Maks. 500 Tamu', 'Buffet Syariah Deluxe', 'Dekor Semi-Kustom', 'Cuplikan Foto & Video'],
     is_popular: false
   }
 ];
@@ -54,18 +55,18 @@ const initialPortfolio: Portfolio[] = [
   {
     id: 1,
     title: 'Al-Husna Grand Wedding',
-    category: 'The Royal Ballroom',
+    category: 'Ballroom Kerajaan',
     image_path: '/images/portfolio-ballroom.jpg'
   },
   {
     id: 2,
-    title: 'Culinary Excellence',
-    category: 'Halal Catering',
+    title: 'Keunggulan Kuliner',
+    category: 'Catering Halal',
     image_path: '/images/portfolio-catering.jpg'
   },
   {
     id: 3,
-    title: 'Outdoor Serenity',
+    title: 'Ketenangan Alam Terbuka',
     category: 'Garden Wedding',
     image_path: '/images/portfolio-outdoor.jpg'
   }
@@ -74,17 +75,18 @@ const initialPortfolio: Portfolio[] = [
 const initialVendors: Vendor[] = [
   { id: 1, name: 'Luxe Halal Catering', category: 'Catering', icon: 'restaurant' },
   { id: 2, name: 'Bloom Syariah Floral', category: 'Floral', icon: 'local_florist' },
-  { id: 3, name: 'Modest Moments Studio', category: 'Documentation', icon: 'camera_enhance' },
-  { id: 4, name: 'Elegance Bridal Wear', category: 'Attire', icon: 'styler' }
+  { id: 3, name: 'Modest Moments Studio', category: 'Dokumentasi', icon: 'camera_enhance' },
+  { id: 4, name: 'Elegance Bridal Wear', category: 'Busana', icon: 'styler' }
 ];
 
 export default function LandingPage() {
   const [packages, setPackages] = useState<Package[]>(initialPackages);
   const [portfolio, setPortfolio] = useState<Portfolio[]>(initialPortfolio);
   const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const apiUrl = import.meta.env.VITE_API_URL || '';
     
     // Fetch packages
     fetch(`${apiUrl}/api/packages`)
@@ -92,7 +94,20 @@ export default function LandingPage() {
         if (!res.ok) throw new Error('Failed to fetch packages');
         return res.json();
       })
-      .then((data) => setPackages(data))
+      .then((data) => {
+        const packagesArray = Array.isArray(data) ? data : data.data;
+        if (!Array.isArray(packagesArray)) throw new Error('Invalid packages data format');
+        
+        const mappedPackages = packagesArray.map((pkg: any) => ({
+          id: pkg.id,
+          name: pkg.name || pkg.package_name || 'Unnamed Package',
+          sub_title: pkg.sub_title || (pkg.price ? `Rp ${Number(pkg.price).toLocaleString('id-ID')}` : 'Special Offer'),
+          icon: pkg.icon || 'star',
+          features: Array.isArray(pkg.features) ? pkg.features : (pkg.description ? [pkg.description] : []),
+          is_popular: !!pkg.is_popular
+        }));
+        setPackages(mappedPackages);
+      })
       .catch((err) => console.warn('Could not load packages from server, using fallback:', err));
 
     // Fetch portfolio
@@ -101,7 +116,11 @@ export default function LandingPage() {
         if (!res.ok) throw new Error('Failed to fetch portfolio');
         return res.json();
       })
-      .then((data) => setPortfolio(data))
+      .then((data) => {
+        const portfolioArray = Array.isArray(data) ? data : data.data;
+        if (!Array.isArray(portfolioArray)) throw new Error('Invalid portfolio data format');
+        setPortfolio(portfolioArray);
+      })
       .catch((err) => console.warn('Could not load portfolio from server, using fallback:', err));
 
     // Fetch vendors
@@ -110,7 +129,11 @@ export default function LandingPage() {
         if (!res.ok) throw new Error('Failed to fetch vendors');
         return res.json();
       })
-      .then((data) => setVendors(data))
+      .then((data) => {
+        const vendorsArray = Array.isArray(data) ? data : data.data;
+        if (!Array.isArray(vendorsArray)) throw new Error('Invalid vendors data format');
+        setVendors(vendorsArray);
+      })
       .catch((err) => console.warn('Could not load vendors from server, using fallback:', err));
   }, []);
 
@@ -126,14 +149,17 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="hidden md:flex items-center gap-8">
-            <a className="text-blue-900 dark:text-white border-b-2 border-teal-200 pb-1 hover:text-blue-900 dark:hover:text-blue-100 transition-colors" href="#">Home</a>
-            <a className="text-blue-900/60 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-100 transition-colors" href="#packages">Packages</a>
-            <a className="text-blue-900/60 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-100 transition-colors" href="#portfolio">Portfolio</a>
-            <a className="text-blue-900/60 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-100 transition-colors" href="#contact">Contact</a>
+            <a className="text-blue-900 dark:text-white border-b-2 border-teal-200 pb-1 hover:text-blue-900 dark:hover:text-blue-100 transition-colors" href="#">Beranda</a>
+            <a className="text-blue-900/60 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-100 transition-colors" href="#packages">Paket</a>
+            <a className="text-blue-900/60 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-100 transition-colors" href="#portfolio">Portofolio</a>
+            <a className="text-blue-900/60 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-100 transition-colors" href="#contact">Kontak</a>
           </div>
           <div className="flex items-center gap-4">
-            <button className="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-all">
-              Client Login
+            <button
+              onClick={() => navigate('/admin/login')}
+              className="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-all"
+            >
+              Masuk Klien
             </button>
           </div>
         </div>
@@ -146,22 +172,22 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-8 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="z-10 order-2 lg:order-1">
               <span className="label-md uppercase tracking-[0.2em] text-on-secondary-container bg-secondary-container px-3 py-1 rounded-full text-xs font-semibold mb-6 inline-block">
-                The Curated Sanctuary
+                Surga Terpilih
               </span>
               <h1 className="text-6xl md:text-7xl lg:text-8xl leading-[1.1] text-primary mb-8 font-serif">
-                Modern Elegance, <br />
-                <span className="italic font-light">Syariah Values.</span>
+                Elegansi Modern, <br />
+                <span className="italic font-light">Nilai Syariah.</span>
               </h1>
               <p className="text-lg text-on-surface-variant max-w-md mb-10 font-body leading-relaxed">
-                Where timeless traditions meet contemporary luxury. We orchestrate weddings that celebrate your faith with unparalleled sophistication.
+                Di mana tradisi abadi bertemu kemewahan kontemporer. Kami merancang pernikahan yang merayakan keimaran Anda dengan kecanggihan yang tiada duanya.
               </p>
               <div className="flex flex-wrap gap-4">
                 <a href="#contact" className="bg-primary text-on-primary px-8 py-4 rounded-xl font-bold hover:scale-[1.02] transition-transform flex items-center gap-2 shadow-xl shadow-primary/10">
-                  Book Consultation
+                  Konsultasi Sekarang
                   <span className="material-symbols-outlined text-xl">arrow_forward</span>
                 </a>
                 <a href="#portfolio" className="bg-surface-container-low text-on-surface px-8 py-4 rounded-xl font-bold hover:bg-surface-container-high transition-colors text-center">
-                  View Portfolio
+                  Lihat Portofolio
                 </a>
               </div>
             </div>
@@ -181,11 +207,11 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-8">
             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
               <div className="max-w-xl">
-                <h2 className="text-4xl md:text-5xl text-primary mb-6 font-serif">Signature Packages</h2>
-                <p className="text-on-surface-variant leading-relaxed">Carefully curated experiences tailored to celebrate your union with elegance and strict adherence to Syariah principles.</p>
+                <h2 className="text-4xl md:text-5xl text-primary mb-6 font-serif">Paket Istimewa</h2>
+                <p className="text-on-surface-variant leading-relaxed">Pengalaman yang dirancang khusus untuk merayakan momen sakral Anda dengan elegan dan berpegang teguh pada prinsip Syariah.</p>
               </div>
               <div className="hidden md:block">
-                <span className="text-primary-container font-serif italic text-2xl">Crafted with Heart</span>
+                <span className="text-primary-container font-serif italic text-2xl">Dibuat dengan Hati</span>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
@@ -208,7 +234,7 @@ export default function LandingPage() {
                     <div>
                       {isPopular && (
                         <div className="absolute top-0 right-0 p-6">
-                          <span className="bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full text-xs font-bold">MOST POPULAR</span>
+                          <span className="bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full text-xs font-bold">PALING POPULER</span>
                         </div>
                       )}
                       <div className="mb-8">
@@ -227,7 +253,7 @@ export default function LandingPage() {
                         ))}
                       </ul>
                     </div>
-                    <button className={buttonClass}>Select {pkg.name.split(' ')[0]}</button>
+                    <button className={buttonClass}>Pilih {pkg.name.split(' ')[0]}</button>
                   </div>
                 );
               })}
@@ -239,7 +265,7 @@ export default function LandingPage() {
         <section id="portfolio" className="py-24 bg-surface">
           <div className="max-w-7xl mx-auto px-8">
             <div className="mb-16">
-              <h2 className="text-4xl font-serif text-primary mb-4">Portfolio Highlights</h2>
+              <h2 className="text-4xl font-serif text-primary mb-4">Portofolio Unggulan</h2>
               <div className="h-1 w-24 bg-secondary"></div>
             </div>
             <div className="grid grid-cols-12 gap-6 h-auto md:h-[600px] lg:h-[800px]">
@@ -279,8 +305,8 @@ export default function LandingPage() {
         <section className="py-24 bg-surface-container">
           <div className="max-w-7xl mx-auto px-8">
             <div className="text-center mb-16">
-              <span className="label-md uppercase tracking-widest text-secondary font-bold">Trusted Network</span>
-              <h2 className="text-4xl font-serif text-primary mt-4">Curated Vendor Partners</h2>
+              <span className="label-md uppercase tracking-widest text-secondary font-bold">Jaringan Terpercaya</span>
+              <h2 className="text-4xl font-serif text-primary mt-4">Mitra Vendor Pilihan</h2>
             </div>
             <div className="flex flex-wrap justify-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all">
               {vendors.map((vendor) => (
@@ -302,20 +328,20 @@ export default function LandingPage() {
             </svg>
           </div>
           <div className="max-w-4xl mx-auto px-8 relative z-10 text-center">
-            <h2 className="text-5xl font-serif text-white mb-8">Begin Your Journey to a <span className="italic">Blessed Union</span></h2>
-            <p className="text-on-primary-container text-xl mb-12">Book a private consultation with our wedding specialists to tailor your dream Syariah wedding.</p>
+            <h2 className="text-5xl font-serif text-white mb-8">Mulai Perjalanan Menuju <span className="italic">Ikatan yang Diberkahi</span></h2>
+            <p className="text-on-primary-container text-xl mb-12">Jadwalkan konsultasi pribadi dengan spesialis pernikahan kami untuk mewujudkan pernikahan Syariah impian Anda.</p>
             <div className="flex flex-col md:flex-row gap-6 justify-center">
               <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl flex-1 text-left">
-                <div className="text-secondary-fixed text-xs font-bold uppercase tracking-widest mb-2">Direct Contact</div>
+                <div className="text-secondary-fixed text-xs font-bold uppercase tracking-widest mb-2">Hubungi Langsung</div>
                 <div className="text-white text-lg">+62 812 3456 7890</div>
               </div>
               <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl flex-1 text-left">
-                <div className="text-secondary-fixed text-xs font-bold uppercase tracking-widest mb-2">Email Inquiry</div>
+                <div className="text-secondary-fixed text-xs font-bold uppercase tracking-widest mb-2">Kirim Email</div>
                 <div className="text-white text-lg">consult@dreamwedding.com</div>
               </div>
             </div>
             <button className="mt-12 bg-secondary-fixed text-on-secondary-fixed px-12 py-5 rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-2xl">
-              Schedule My Consultation
+              Jadwalkan Konsultasi Saya
             </button>
           </div>
         </section>
@@ -330,7 +356,7 @@ export default function LandingPage() {
               <div className="text-2xl font-serif italic text-blue-900"> Dream Wedding Syariah </div>
             </div>
             <p className="text-on-surface-variant max-w-sm mb-8 leading-relaxed">
-              Providing a modern, sophisticated sanctuary for weddings that honor faith and tradition. Committed to excellence and Syariah compliance in every detail.
+              Menyediakan tempat sakral yang modern dan sophisticated untuk pernikahan yang menghormati iman dan tradisi. Berkomitmen pada keunggulan dan kepatuhan Syariah di setiap detail.
             </p>
             <div className="flex gap-4">
               <a className="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-white hover:bg-primary transition-colors" href="#">
@@ -345,26 +371,26 @@ export default function LandingPage() {
             </div>
           </div>
           <div>
-            <h4 className="font-bold text-primary mb-6 uppercase tracking-widest text-xs">Navigation</h4>
+            <h4 className="font-bold text-primary mb-6 uppercase tracking-widest text-xs">Navigasi</h4>
             <ul className="space-y-4 text-on-surface-variant">
-              <li><a className="hover:text-primary transition-colors" href="#">Home</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#packages">Packages</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#portfolio">Portfolio</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#">Vendor Login</a></li>
+              <li><a className="hover:text-primary transition-colors cursor-pointer" href="#">Beranda</a></li>
+              <li><a className="hover:text-primary transition-colors cursor-pointer" href="#packages">Paket</a></li>
+              <li><a className="hover:text-primary transition-colors cursor-pointer" href="#portfolio">Portofolio</a></li>
+              <li><a onClick={() => navigate('/admin/login')} className="hover:text-primary transition-colors cursor-pointer">Masuk Vendor</a></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-bold text-primary mb-6 uppercase tracking-widest text-xs">Resources</h4>
+            <h4 className="font-bold text-primary mb-6 uppercase tracking-widest text-xs">Sumber Daya</h4>
             <ul className="space-y-4 text-on-surface-variant">
-              <li><a className="hover:text-primary transition-colors" href="#">Syariah Guidelines</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#">Planning Tips</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#">Testimonials</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+              <li><a className="hover:text-primary transition-colors" href="#">Panduan Syariah</a></li>
+              <li><a className="hover:text-primary transition-colors" href="#">Tips Perencanaan</a></li>
+              <li><a className="hover:text-primary transition-colors" href="#">Testimoni</a></li>
+              <li><a className="hover:text-primary transition-colors" href="#">Kebijakan Privasi</a></li>
             </ul>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-8 mt-20 pt-8 border-t border-outline-variant/30 text-center text-sm text-on-surface-variant">
-          © 2026 Dream Wedding Syariah. All rights reserved.
+          © 2026 Dream Wedding Syariah. Hak cipta dilindungi.
         </div>
       </footer>
     </div>

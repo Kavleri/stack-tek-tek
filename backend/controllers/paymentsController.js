@@ -12,7 +12,7 @@ class paymentController {
 
       res.json({
         message: "Berhasil ambil semua data payment",
-        data: results,
+        payments: results,
       });
     } catch (err) {
       return next(err);
@@ -31,7 +31,7 @@ class paymentController {
 
       res.json({
         message: "Detail payment",
-        data: results[0],
+        payment: results[0],
       });
     } catch (err) {
       return next(err);
@@ -45,7 +45,7 @@ class paymentController {
       await payment.create(data);
       res.status(201).json({
         message: "Payment berhasil ditambahkan",
-        data: data,
+        payment: data,
       });
     } catch (err) {
       return next(err);

@@ -1,63 +1,75 @@
 import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
-interface Client {
+interface Package {
   id: number;
-  name: string;
+  package_name: string;
 }
 
 interface Event {
   id: number;
-  client_id: number;
-  groom_name: string;
-  bride_name: string;
-  event_date: string;
-  location: string;
-  theme: string;
-  status: string;
+  invoice_number: string;
   client_name: string;
+  client_phone: string;
+  event_date: string;
+  event_time: string;
+  location_name: string;
+  location_address: string;
+  google_maps_link: string;
+  package_id: number;
+  package_name: string;
+  package_price: number;
+  status: string;
+  notes_for_field_staff: string;
+  created_at: string;
 }
 
 export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [formError, setFormError] = useState('');
+  
   const [formData, setFormData] = useState<Partial<Event>>({
-    client_id: 0,
-    groom_name: '',
-    bride_name: '',
+    client_name: '',
+    client_phone: '',
     event_date: '',
-    location: '',
-    theme: '',
-    status: 'Pending',
+    event_time: '08:00',
+    location_name: '',
+    location_address: '',
+    google_maps_link: '',
+    package_id: 0,
+    status: 'pending',
+    notes_for_field_staff: '',
   });
+
+  // Calendar State
+  const [currentDate, setCurrentDate] = useState(new Date());
   const token = localStorage.getItem('token');
 
   const fetchData = async () => {
     try {
-      const [eventsRes, clientsRes] = await Promise.all([
+      const [eventsRes, packagesRes] = await Promise.all([
         fetch(`${API_URL}/api/events`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`${API_URL}/api/clients`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        fetch(`${API_URL}/api/packages`),
       ]);
 
       if (eventsRes.ok) {
         const data = await eventsRes.json();
         setEvents(data.events || []);
       }
-      if (clientsRes.ok) {
-        const data = await clientsRes.json();
-        setClients(data.clients || []);
+      if (packagesRes.ok) {
+        const data = await packagesRes.json();
+        setPackages(data || []);
       }
     } catch (error) {
-      console.error('Failed to fetch data:', error);
+      console.error('Failed to fetch events data:', error);
     } finally {
       setLoading(false);
     }
@@ -69,6 +81,7 @@ export default function Events() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError('');
     try {
       const url = editingEvent
         ? `${API_URL}/api/events/${editingEvent.id}`
@@ -81,252 +94,470 @@ export default function Events() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          package_id: formData.package_id ? Number(formData.package_id) : null
+        }),
       });
 
       if (response.ok) {
         setShowModal(false);
         setEditingEvent(null);
         setFormData({
-          client_id: 0,
-          groom_name: '',
-          bride_name: '',
+          client_name: '',
+          client_phone: '',
           event_date: '',
-          location: '',
-          theme: '',
-          status: 'Pending',
+          event_time: '08:00',
+          location_name: '',
+          location_address: '',
+          google_maps_link: '',
+          package_id: 0,
+          status: 'pending',
+          notes_for_field_staff: '',
         });
         fetchData();
       } else {
-        const error = await response.json();
-        alert(error.message || 'Failed to save event');
+        const errorData = await response.json();
+        setFormError(errorData.message || 'Gagal menyimpan pemesanan acara.');
       }
     } catch (error) {
       console.error('Failed to save event:', error);
+      setFormError('Koneksi internet bermasalah.');
     }
   };
 
+  const handleEdit = (evt: Event) => {
+    setEditingEvent(evt);
+    setFormData(evt);
+    setFormError('');
+    setShowModal(true);
+  };
+
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this event?')) {
+    if (window.confirm('Apakah Anda yakin ingin menghapus data acara & semua catatan pembayarannya?')) {
       try {
-        await fetch(`${API_URL}/api/events/${id}`, {
+        const response = await fetch(`${API_URL}/api/events/${id}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
         });
-        fetchData();
+        if (response.ok) {
+          fetchData();
+        }
       } catch (error) {
         console.error('Failed to delete event:', error);
       }
     }
   };
 
+  // Calendar Helper Logic
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const days = new Date(year, month + 1, 0).getDate();
+    return Array.from({ length: days }, (_, i) => new Date(year, month, i + 1));
+  };
+
+  const daysInMonth = getDaysInMonth(currentDate);
+  const startDayOffset = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay(); // Sunday is 0
+
+  const handlePrevMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-surface text-on-surface">
       <Sidebar />
-      <div className="flex-1 p-8">
-        <div className="flex items-center justify-between mb-8">
+
+      <main className="flex-1 p-8 overflow-y-auto">
+        {/* Header */}
+        <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-serif text-slate-800">Events</h1>
-            <p className="text-slate-500 mt-1">Manage your wedding events</p>
+            <h1 className="text-4xl font-serif font-light text-primary tracking-wide">
+              Events & <span className="font-normal font-serif">Scheduling</span>
+            </h1>
+            <p className="text-xs text-on-surface-variant tracking-wider uppercase font-sans mt-2 font-medium">
+              Jadwal Acara & Checklist Operasional Lapangan
+            </p>
           </div>
-          <button
-            onClick={() => {
-              setEditingEvent(null);
-              setFormData({
-                client_id: 0,
-                groom_name: '',
-                bride_name: '',
-                event_date: '',
-                location: '',
-                theme: '',
-                status: 'Pending',
-              });
-              setShowModal(true);
-            }}
-            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined">add</span>
-            Add Event
-          </button>
+          <div>
+            <button
+              onClick={() => {
+                setEditingEvent(null);
+                setFormData({
+                  client_name: '',
+                  client_phone: '',
+                  event_date: '',
+                  event_time: '08:00',
+                  location_name: '',
+                  location_address: '',
+                  google_maps_link: '',
+                  package_id: 0,
+                  status: 'pending',
+                  notes_for_field_staff: '',
+                });
+                setFormError('');
+                setShowModal(true);
+              }}
+              className="bg-primary text-white px-5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider hover:opacity-95 transition-all duration-300 shadow-md shadow-primary/10 flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-sm">add</span>
+              Buat Pemesanan Acara
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {loading ? (
-            <p className="text-slate-500">Loading events...</p>
-          ) : events.length === 0 ? (
-            <p className="text-slate-500">No events yet</p>
-          ) : (
-            events.map((event) => (
-              <div key={event.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-serif text-slate-800">
-                    {event.groom_name} & {event.bride_name}
-                  </h3>
-                  <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      event.status === 'Confirmed'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-yellow-100 text-yellow-700'
+        {/* 2 Grid Columns: Interactive Calendar & Event Lists */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+          
+          {/* Calendar Section (7 Cols) */}
+          <div className="xl:col-span-7 bg-surface-container-low p-6 rounded-3xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-serif font-medium text-primary">
+                {currentDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+              </h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={handlePrevMonth}
+                  className="w-9 h-9 bg-surface-container-lowest text-primary rounded-xl flex items-center justify-center hover:bg-secondary-container transition-all duration-300"
+                >
+                  <span className="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button
+                  onClick={handleNextMonth}
+                  className="w-9 h-9 bg-surface-container-lowest text-primary rounded-xl flex items-center justify-center hover:bg-secondary-container transition-all duration-300"
+                >
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Calendar Grid Header */}
+            <div className="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
+              <div>Min</div>
+              <div>Sen</div>
+              <div>Sel</div>
+              <div>Rab</div>
+              <div>Kam</div>
+              <div>Jum</div>
+              <div>Sab</div>
+            </div>
+
+            {/* Calendar Grid Body */}
+            <div className="grid grid-cols-7 gap-2">
+              {/* Day offset spacers */}
+              {Array.from({ length: startDayOffset }).map((_, idx) => (
+                <div key={`spacer-${idx}`} className="aspect-square bg-transparent"></div>
+              ))}
+
+              {/* Day cells */}
+              {daysInMonth.map((day, idx) => {
+                const formattedDate = day.toISOString().substring(0, 10);
+                const dayEvents = events.filter(e => e.event_date === formattedDate);
+                const isToday = new Date().toISOString().substring(0, 10) === formattedDate;
+
+                return (
+                  <div
+                    key={`day-${idx}`}
+                    className={`aspect-square p-2 rounded-xl flex flex-col justify-between transition-all duration-200 relative group border border-outline-variant/10 ${
+                      isToday 
+                        ? 'bg-secondary-container text-on-secondary-fixed-variant' 
+                        : 'bg-surface-container-lowest text-on-surface'
                     }`}
                   >
-                    {event.status}
-                  </span>
-                </div>
-                <div className="space-y-2 text-sm text-slate-600">
-                  <p className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-blue-600">person</span>
-                    {event.client_name}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-blue-600">event</span>
-                    {new Date(event.event_date).toLocaleDateString('id-ID', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-blue-600">location_on</span>
-                    {event.location}
-                  </p>
-                  {event.theme && (
-                    <p className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-blue-600">palette</span>
-                      {event.theme}
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-2 mt-6">
-                  <button
-                    onClick={() => {
-                      setEditingEvent(event);
-                      setFormData(event);
-                      setShowModal(true);
-                    }}
-                    className="flex-1 bg-slate-100 text-slate-700 py-2 rounded-xl font-semibold hover:bg-slate-200"
+                    <span className="text-xs font-semibold font-serif">{day.getDate()}</span>
+                    
+                    {/* Event indicators */}
+                    <div className="flex flex-wrap gap-1 mt-1 justify-end">
+                      {dayEvents.map(evt => (
+                        <div
+                          key={evt.id}
+                          className={`w-2.5 h-2.5 rounded-full cursor-help ${
+                            evt.status === 'confirmed'
+                              ? 'bg-secondary'
+                              : evt.status === 'completed'
+                              ? 'bg-primary'
+                              : evt.status === 'cancelled'
+                              ? 'bg-outline'
+                              : 'bg-tertiary-fixed-dim'
+                          }`}
+                          title={`${evt.client_name} (${evt.status})`}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Popover on Hover */}
+                    {dayEvents.length > 0 && (
+                      <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 w-48 bg-primary text-white p-3 rounded-xl shadow-xl hidden group-hover:block z-30 pointer-events-none text-left">
+                        <p className="text-[9px] uppercase tracking-wider text-secondary-fixed font-semibold">Scheduled Booking</p>
+                        {dayEvents.map(evt => (
+                          <div key={evt.id} className="mt-1.5 border-t border-white/10 pt-1.5 first:mt-0 first:border-0 first:pt-0">
+                            <p className="text-xs font-serif font-medium truncate">{evt.client_name}</p>
+                            <p className="text-[10px] text-white/70 mt-0.5 truncate">{evt.location_name}</p>
+                            <p className="text-[9px] italic text-white/50">{evt.status}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Events List Section (5 Cols) */}
+          <div className="xl:col-span-5 space-y-6">
+            <h2 className="text-xl font-serif font-medium text-primary">Daftar Acara</h2>
+            
+            {loading ? (
+              <p className="text-sm text-on-surface-variant">Memuat data acara...</p>
+            ) : events.length === 0 ? (
+              <p className="text-sm text-on-surface-variant italic">Belum ada pemesanan terdaftar.</p>
+            ) : (
+              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 no-scrollbar">
+                {events.map(evt => (
+                  <div
+                    key={evt.id}
+                    className="bg-surface-container-low p-5 rounded-2xl space-y-4"
                   >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(event.id)}
-                    className="flex-1 bg-red-100 text-red-700 py-2 rounded-xl font-semibold hover:bg-red-200"
-                  >
-                    Delete
-                  </button>
-                </div>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-xs text-secondary font-semibold font-sans tracking-wide uppercase">
+                          {evt.invoice_number}
+                        </p>
+                        <h4 className="font-serif font-medium text-primary text-lg mt-0.5">
+                          {evt.client_name}
+                        </h4>
+                        <p className="text-xs text-on-surface-variant">HP: {evt.client_phone}</p>
+                      </div>
+                      <span
+                        className={`px-2.5 py-1 text-[10px] font-bold uppercase rounded-full ${
+                          evt.status === 'confirmed'
+                            ? 'bg-secondary-container text-on-secondary-fixed-variant'
+                            : evt.status === 'completed'
+                            ? 'bg-primary-container text-on-primary-fixed-variant'
+                            : evt.status === 'cancelled'
+                            ? 'bg-error-container text-on-error-container'
+                            : 'bg-tertiary-fixed text-on-tertiary-fixed-variant'
+                        }`}
+                      >
+                        {evt.status}
+                      </span>
+                    </div>
+
+                    <div className="text-xs space-y-1.5 text-on-surface-variant font-sans border-t border-outline-variant/10 pt-3">
+                      <p className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[16px] text-secondary">calendar_today</span>
+                        {new Date(evt.event_date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[16px] text-secondary">schedule</span>
+                        {evt.event_time.substring(0, 5)} WIB
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[16px] text-secondary">location_on</span>
+                        {evt.location_name}
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[16px] text-secondary">inventory_2</span>
+                        {evt.package_name}
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2 pt-2 border-t border-outline-variant/10">
+                      <a
+                        href={`/admin/events/${evt.id}/work-order`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex-1 bg-primary text-white py-2 rounded-xl text-xs font-semibold uppercase tracking-wider text-center hover:opacity-95 transition-all duration-300"
+                      >
+                        Print WO
+                      </a>
+                      <button
+                        onClick={() => handleEdit(evt)}
+                        className="bg-surface-container-lowest text-primary px-3 py-2 rounded-xl text-xs font-semibold uppercase hover:bg-secondary-container transition-all duration-300"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(evt.id)}
+                        className="bg-error-container/40 text-on-error-container px-3 py-2 rounded-xl text-xs font-semibold uppercase hover:bg-error-container transition-all duration-300"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))
-          )}
+            )}
+          </div>
+
         </div>
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl p-6 w-full max-w-lg">
-              <h2 className="text-2xl font-serif text-slate-800 mb-6">
-                {editingEvent ? 'Edit Event' : 'Add New Event'}
+          <div className="fixed inset-0 bg-primary/20 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity duration-300">
+            <div className="bg-surface-container-lowest p-8 rounded-[24px] shadow-[0_12px_40px_rgba(11,37,69,0.06)] border border-outline-variant/15 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <h2 className="text-2xl font-serif text-primary mb-6">
+                {editingEvent ? 'Edit Detail Acara' : 'Buat Pemesanan Acara Baru'}
               </h2>
+
+              {formError && (
+                <div className="bg-error-container/40 text-on-error-container p-4 rounded-xl text-xs font-sans font-medium flex items-center gap-2 mb-5">
+                  <span className="material-symbols-outlined text-sm">warning</span>
+                  {formError}
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Client</label>
-                  <select
-                    value={formData.client_id}
-                    onChange={(e) => setFormData({ ...formData, client_id: Number(e.target.value) })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                    required
-                  >
-                    <option value="">Select Client</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Groom Name</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nama Klien</label>
                     <input
                       type="text"
-                      value={formData.groom_name}
-                      onChange={(e) => setFormData({ ...formData, groom_name: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                      value={formData.client_name}
+                      onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
+                      className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                      placeholder="Contoh: Budi Prasetyo"
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Bride Name</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nomor HP Klien</label>
                     <input
                       type="text"
-                      value={formData.bride_name}
-                      onChange={(e) => setFormData({ ...formData, bride_name: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                      value={formData.client_phone}
+                      onChange={(e) => setFormData({ ...formData, client_phone: e.target.value })}
+                      className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                      placeholder="Contoh: 0812345678"
                       required
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Event Date</label>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Tanggal Acara</label>
+                    <input
+                      type="date"
+                      value={formData.event_date}
+                      onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
+                      className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Waktu Acara (WIB)</label>
+                    <input
+                      type="time"
+                      value={formData.event_time}
+                      onChange={(e) => setFormData({ ...formData, event_time: e.target.value })}
+                      className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Pilih Paket Wedding</label>
+                    <select
+                      value={formData.package_id || ''}
+                      onChange={(e) => setFormData({ ...formData, package_id: e.target.value ? Number(e.target.value) : 0 })}
+                      className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                      required
+                    >
+                      <option value="">-- Pilih Paket --</option>
+                      {packages.map((pkg) => (
+                        <option key={pkg.id} value={pkg.id}>
+                          {pkg.package_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Status Pemesanan</label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                      className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nama Gedung / Lokasi</label>
                   <input
-                    type="date"
-                    value={formData.event_date}
-                    onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                    type="text"
+                    value={formData.location_name}
+                    onChange={(e) => setFormData({ ...formData, location_name: e.target.value })}
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                    placeholder="Contoh: Grand Ballroom Hotel Madinah"
                     required
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                    required
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Alamat Lengkap Lokasi</label>
+                  <textarea
+                    value={formData.location_address}
+                    onChange={(e) => setFormData({ ...formData, location_address: e.target.value })}
+                    rows={2}
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans resize-none"
+                    placeholder="Masukkan alamat lengkap lokasi"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Theme</label>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Link Google Maps</label>
                   <input
-                    type="text"
-                    value={formData.theme}
-                    onChange={(e) => setFormData({ ...formData, theme: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                    type="url"
+                    value={formData.google_maps_link}
+                    onChange={(e) => setFormData({ ...formData, google_maps_link: e.target.value })}
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans"
+                    placeholder="https://maps.google.com/..."
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Catatan Lapangan (Work Order Details)</label>
+                  <textarea
+                    value={formData.notes_for_field_staff}
+                    onChange={(e) => setFormData({ ...formData, notes_for_field_staff: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl border border-transparent focus:border-primary/20 focus:bg-surface-container-lowest outline-none transition-all duration-300 text-sm font-sans resize-none"
+                    placeholder="Tulis instruksi khusus untuk tim dekorasi, katering, sound system, dll..."
+                  />
                 </div>
-                <div className="flex gap-3 pt-4">
+
+                <div className="flex gap-4 pt-4 border-t border-outline-variant/10">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="flex-1 bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200"
+                    className="flex-1 bg-surface-container-low text-on-surface-variant py-3 rounded-xl text-xs font-semibold uppercase hover:bg-surface-container-high transition-all duration-300"
                   >
-                    Cancel
+                    Batal
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700"
+                    className="flex-1 bg-primary text-white py-3 rounded-xl text-xs font-semibold uppercase hover:opacity-95 transition-all duration-300 shadow-md shadow-primary/10"
                   >
-                    Save
+                    Simpan Acara
                   </button>
                 </div>
               </form>
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

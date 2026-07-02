@@ -7,24 +7,29 @@ const AdminModel = {
     return rows.length > 0 ? rows[0] : null;
   },
 
+  findById: async (id) => {
+    const [rows] = await pool.query('SELECT id, username, full_name, role, created_at, updated_at FROM admins WHERE id = ? LIMIT 1', [id]);
+    return rows.length > 0 ? rows[0] : null;
+  },
+
   findAll: async () => {
     const [rows] = await pool.query('SELECT id, username, full_name, role, created_at, updated_at FROM admins');
     return rows;
   },
 
-  create: async ({ username, password, fullName, role }) => {
+  create: async ({ username, password, full_name, role }) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await pool.query(
       'INSERT INTO admins (username, password, full_name, role) VALUES (?, ?, ?, ?)',
-      [username, hashedPassword, fullName, role || 'admin']
+      [username, hashedPassword, full_name, role || 'admin']
     );
     return result.insertId;
   },
 
-  update: async (id, { fullName, role }) => {
+  update: async (id, { full_name, role }) => {
     const [result] = await pool.query(
       'UPDATE admins SET full_name = ?, role = ? WHERE id = ?',
-      [fullName, role, id]
+      [full_name, role, id]
     );
     return result.affectedRows;
   },

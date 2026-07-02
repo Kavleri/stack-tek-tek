@@ -10,7 +10,7 @@ async function getWeddingPackages(req, res, next) {
   try {
     const includeInactive = req.query.includeInactive !== 'false';
     const packages = await findAllWeddingPackages(includeInactive);
-    res.json({ data: packages });
+    res.json(packages);
   } catch (error) {
     next(error);
   }
@@ -25,7 +25,7 @@ async function getWeddingPackageById(req, res, next) {
       return next({ type: 'WEDDING_PACKAGE_NOT_FOUND' });
     }
 
-    return res.json({ data: weddingPackage });
+    return res.json(weddingPackage);
   } catch (error) {
     return next(error);
   }
